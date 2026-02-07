@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  nenquangminhfe:
+    container_name: nenquangminhfe_container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "1111:80"
+    restart: always

@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+.swiper-pagination-bullet-active {
+    background-color: var(--color-primary) !important;
+    border-radius: 5px !important;
+    height: 8px !important;
+    width: 20px !important;
+}
+
+.swiper-pagination-bullets-dynamic {
+    transform: translateX(0) !important;
+}
+
+.swiper-navigation-icon {
+    color: var(--color-dark);
+    height: 50% !important;
+    width: 50% !important;
+}
+.swiper-button-prev, .swiper-button-next {
+    background: var(--color-primary) !important;
+    border: 1px solid var(--color-line) !important;
+    border-radius: 50% !important;
+}
+
+.swiper-slide-thumb-active {
+    opacity: 1 !important;
+    border: 2px solid var(--color-primary);
+}
+
+@keyframes ring-rotate {
+    0%, 100% { transform: rotate(0deg); }
+    20% { transform: rotate(-10deg); }
+    40% { transform: rotate(10deg); }
+    60% { transform: rotate(-8deg); }
+    80% { transform: rotate(8deg); }
+}
+
+@theme {
+    --animate-ring: ring-rotate 0.7s infinite ease-in-out;
+    --breakpoint-xs: 480px;
+    --color-bgHeaderFooter: #F1EDE4;
+    --color-bgPrimary: transparent;
+    --color-bgHero: #F2B279;
+    --color-bgReview: linear-gradient(180deg, #FFF8F2 0%, #FFEFD9 100%);
+    --color-dark: #2E251F;
+    --color-light: #E9E3DD;
+    --color-line: #B3A898;
+    --color-primary: #BF8055;
+    --color-textHover: #F59E0B;
+    --color-textSecondary: #9CA3AF;
+
+}
+
+/* Utilities using CSS variables */
+.bg-hero { background-color: var(--color-bgHero) !important; }
+.bg-header-footer { background-color: var(--color-bgHeaderFooter) !important; }
+.bg-review { background: var(--color-bgReview) !important; }
+
+/* Review section styles */
+.review-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.9));
+  border: 1px solid var(--color-line);
+  border-radius: 1rem;
+  box-shadow: 0 20px 40px rgba(46,37,31,0.08);
+  backdrop-filter: blur(6px);
+  transition: transform .35s ease, box-shadow .35s ease;
+}
+.review-card:hover { transform: translateY(-6px); box-shadow: 0 30px 60px rgba(46,37,31,0.12); }
+.review-quote { color: var(--color-primary); opacity: 0.08; }
+.review-nav-btn { background: var(--color-primary); border: 1px solid var(--color-line); color: var(--color-dark); transition: transform .25s; }
+.review-nav-btn:hover { transform: scale(1.08); color: var(--color-light); }
+.review-pagination .swiper-pagination-bullet { opacity: 0.6; }
+.review-pagination .swiper-pagination-bullet-active { opacity: 1; }

@@ -1,0 +1,12 @@
+# 1. Chặn xung đột hệ điều hành & Tăng tốc độ
+node_modules
+
+# 2. Bảo mật tuyệt đối
+.env*
+
+# 3. Tránh rác hệ thống version control
+.git
+
+# 4. Tránh xung đột code cũ
+dist
+build
