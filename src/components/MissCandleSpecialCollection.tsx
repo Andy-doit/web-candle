@@ -3,20 +3,23 @@ import { Link } from "react-router-dom";
 import { Button } from "./ui/button";
 
 type TMissCandleSpecialCollectionProps = {
-  isLarge?: boolean;
   product: {
     id: number;
     name: string;
     description: string;
     image: string;
     restock: number;
+    note1: string | null;
   };
-  styles?: string;
 }
 
-const MissCandleSpecialCollection: FunctionComponent<TMissCandleSpecialCollectionProps> = ({product, isLarge=false, styles}) => {
+const MissCandleSpecialCollection: FunctionComponent<TMissCandleSpecialCollectionProps> = ({product}) => {
+  if (!product) {
+    return null;
+  }
+
   return (
-    <div className={`relative group overflow-hidden rounded-3xl shadow-2xl hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.3)] active:shadow-lg transition-all duration-700 w-full touch-manipulation ${styles}`}>
+    <div className="relative group overflow-hidden rounded-3xl shadow-2xl hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.3)] active:shadow-lg transition-all duration-700 w-full h-full touch-manipulation">
       <img
         src={product.image}
         alt={product.name}
@@ -29,17 +32,17 @@ const MissCandleSpecialCollection: FunctionComponent<TMissCandleSpecialCollectio
           <p className="text-xs sm:text-sm tracking-[0.25em] sm:tracking-[0.32em] uppercase text-[#E9E3DD]/80 font-medium">
             {`${product.restock} SẢN PHẨM`}
           </p>
-          <h3 className={`font-semibold text-[#E9E3DD] ${isLarge ? 'text-2xl sm:text-3xl md:text-4xl' : 'text-xl sm:text-2xl md:text-3xl'} leading-tight`}>
+          <h3 className="font-semibold text-[#E9E3DD] text-xl sm:text-2xl md:text-3xl leading-tight">
             {product.name}
           </h3>
-          <p className={`text-[#E9E3DD]/90 ${isLarge ? 'text-base sm:text-lg' : 'text-sm sm:text-base'} font-extralight leading-relaxed max-w-xs`}>
-            {product.description}
+          <p className="text-[#E9E3DD]/90 text-sm sm:text-base font-extralight leading-relaxed max-w-xs">
+            {product.note1}
           </p>
         </div>
 
         <div className="mt-4 sm:mt-6 flex items-center justify-between">
           <span className="h-[1px] flex-1 bg-gradient-to-r from-transparent via-[#E9E3DD]/35 to-transparent mr-4 sm:mr-6 opacity-80" />
-          <Link to="/products" className="shrink-0">
+          <Link to={`/products/category/${product.name}/${product.id}`} className="shrink-0">
             <Button
               variant="outline"
               size="sm"

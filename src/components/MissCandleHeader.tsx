@@ -1,6 +1,6 @@
 import { FunctionComponent, useEffect, useState } from "react"
 import { Menu, X, ShoppingBag, ChevronDown } from "lucide-react"
-import { Link, NavLink, useLocation } from "react-router-dom"
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom"
 import { CategoryApi } from "../apis";
 import { ICategoryBase } from "../types";
 
@@ -17,6 +17,7 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
   const [categories, setCategories] = useState<ICategoryBase[]>([]);
   const [expandedMobileMenu, setExpandedMobileMenu] = useState<string | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -141,9 +142,13 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
 
         {/* Icons (Cart) - Right on both */}
         <div className="flex items-center gap-3 order-3">
-          <button className="text-dark hover:text-primary transition relative">
-            <ShoppingBag className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full text-[10px] flex items-center justify-center text-dark">
+          <button 
+            className="group relative p-2 rounded-lg hover:bg-gray-100 transition-all duration-300 cursor-pointer"
+            onClick={() => navigate('/cart')}
+            title="Giỏ hàng"
+          >
+            <ShoppingBag className="w-6 h-6 text-dark group-hover:text-primary transition-colors" />
+            <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-primary rounded-full text-[11px] font-semibold flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform duration-200">
               0
             </span>
           </button>
@@ -178,7 +183,7 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
                     </div>
 
                     {/* Sub-menu for products (Text Only) */}
-                    <div className={`bg-gray-50 flex flex-col overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-[1000px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                    <div className={`bg-gray-50 flex flex-col overflow-hidden transition-all duration-300 ${isExpanded ? 'max-h-250 opacity-100' : 'max-h-0 opacity-0'}`}>
                       {categories.map(cat => (
                         <NavLink
                           key={cat.id}

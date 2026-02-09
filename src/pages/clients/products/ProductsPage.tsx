@@ -88,19 +88,19 @@ export default function ProductsPage() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50/30">
+    <div className="min-h-screen flex flex-col bg-light">
       {/* Banner Section */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
-        className="relative w-full h-[250px] md:h-[350px] lg:h-[450px] overflow-hidden shrink-0"
+        className="relative w-full h-60 md:h-70 lg:h-80 overflow-hidden shrink-0"
       >
         {/* Darker Overlay for Contrast */}
         <div className="absolute inset-0 bg-black/40 z-10 transition-opacity duration-700 hover:bg-black/30" />
 
         <img
-          src="/banner/4.png"
+          src="/banner/products.png"
           alt="banner"
           className="w-full h-full object-cover object-center scale-105"
         />

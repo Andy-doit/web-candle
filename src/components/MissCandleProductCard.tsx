@@ -48,14 +48,12 @@ const MissCandleProductCard: FunctionComponent<TMissCandleProductCard> = ({
 
       {/* --- CONTENT --- */}
       <div className="flex flex-col flex-1">
-        <p className="text-[10px] md:text-xs text-gray-400 tracking-wider uppercase font-medium mb-1 line-clamp-1">
+        <p className="text-[10px] cursor-pointer md:text-xs text-gray-400 tracking-wider uppercase font-medium mb-1 line-clamp-1">
           {categories}
         </p>
 
-        <h3 className="font-semibold text-gray-800 text-sm md:text-base hover:text-primary transition-colors line-clamp-2 min-h-[40px] md:min-h-[48px]">
-          <Link to={`/products/category/${categoryName}/${categoryID}/detail/${product.id}`}>
+        <h3 className="font-semibold text-gray-800 text-sm md:text-base cursor-pointer line-clamp-2 min-h-10 md:min-h-12">
             {product.name || "Untitled"}
-          </Link>
         </h3>
 
         {/* Price (Đẩy xuống đáy nếu card có chiều cao không đều) */}

@@ -69,11 +69,11 @@ export default function HeroSection() {
                   textDisplay="Khám phá sản phẩm"
                   variant="primary"
                 />
-                <MissCandleButton
+                {/* <MissCandleButton
                   onClickButton={() => null}
                   textDisplay="Tìm hiểu thêm"
                   variant="primary"
-                />
+                /> */}
               </div>
             </div>
           </div>

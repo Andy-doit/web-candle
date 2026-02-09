@@ -1,12 +1,16 @@
 export interface ICategoryBase {
   id: number
   name: string
+  description: string
   creator: string
   image_url: string
   parent_uuid: string
+  note1: string | null
+  note2: string | null
+  note3: string | null
   createdDate: string
   modifiedDate: string
-  status: boolean
+  status: number
 }
 
 export interface IProductBase {
