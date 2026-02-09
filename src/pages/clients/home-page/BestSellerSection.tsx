@@ -5,7 +5,7 @@ import { ProductApi } from "../../../apis";
 
 const NOTE2_ORDER = ["1", "2", "3", "4"];
 
-export default function BestSellerSection () {
+export default function BestSellerSection() {
   const [products, setProducts] = useState<IProductBase[]>([])
 
   const loadProducts = async (categoryId?: number) => {
@@ -38,19 +38,19 @@ export default function BestSellerSection () {
   }, []);
 
   return (
-    <section className="bg-light md:pt-20 px-4 md:px-12">
+    <section className="bg-light py-10 md:py-20 px-4 md:px-8 lg:px-12">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8 md:mb-12">
-          <p className="text-primary text-xs md:text-sm tracking-widest font-medium mb-2 uppercase">
+          <p className="text-primary text-xs md:text-sm tracking-[0.2em] font-medium mb-3 uppercase">
             Sản Phẩm Nổi Bật
           </p>
-          <h2 className="text-2xl md:text-4xl font-serif text-dark font-bold">
+          <h2 className="text-3xl md:text-4xl font-serif text-dark font-bold leading-tight">
             Bộ Sưu Tập <span className="text-primary italic">Tinh Hoa</span>
           </h2>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
           {products.map((product) => (
             <MissCandleProductCard key={product.id} product={product} />
           ))}

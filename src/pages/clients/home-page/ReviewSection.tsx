@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Pagination, Autoplay } from 'swiper/modules'
-import {ChevronLeft, ChevronRight, Quote, Star} from 'lucide-react'
+import { ChevronLeft, ChevronRight, Quote, Star } from 'lucide-react'
 import 'swiper/css'
 import 'swiper/css/navigation'
 
@@ -64,7 +64,7 @@ export default function ReviewSection() {
   ]
 
   return (
-    <section 
+    <section
       ref={sectionRef}
       className="bg-review py-12 sm:py-24 md:py-16 lg:py-20 relative overflow-hidden"
     >
@@ -74,7 +74,7 @@ export default function ReviewSection() {
         <div className={`absolute bottom-0 left-1/3 w-[350px] h-[350px] sm:w-[450px] sm:h-[450px] md:w-[550px] md:h-[550px] bg-primary/10 rounded-full blur-[70px] sm:blur-[90px] transition-all duration-2500 delay-300 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-50'} animate-float`} style={{ animationDelay: '2s' }}></div>
         <div className="absolute inset-0 opacity-[0.008] bg-[radial-gradient(circle_at_25%_35%,rgba(191,128,85,1)_2px,transparent_2px)] bg-[length:100px_100px] sm:bg-[length:120px_120px]"></div>
       </div>
-      
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Premium Header with animation */}
         <div className={`text-center mb-10 sm:mb-12 md:mb-16 lg:mb-20 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}>
@@ -85,7 +85,7 @@ export default function ReviewSection() {
             </p>
             <div className="h-[1.5px] sm:h-[2px] w-24 sm:w-32 bg-gradient-to-l from-transparent via-[#9C775B]/40 to-[#9C775B]/60"></div>
           </div>
-          
+
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black text-[#2E251F] leading-[1.15] sm:leading-[0.95] tracking-[-0.03em] sm:tracking-[-0.04em] mb-4 sm:mb-6 relative">
             {/* Tách 2 dòng rõ ràng trên mobile */}
             <span className="relative z-10 block">Đánh Giá</span>
@@ -126,17 +126,16 @@ export default function ReviewSection() {
           >
             {reviews.map((review) => (
               <SwiperSlide key={review.id}>
-                <div className="review-card p-8 sm:p-10 md:px-12 lg:px-16 py-10 mx-2 my-2 text-center h-full flex flex-col justify-center group">
+                <div className="review-card bg-white/50 backdrop-blur-sm rounded-2xl shadow-sm p-6 sm:p-10 md:px-12 lg:px-16 py-10 mx-auto my-4 text-center h-full flex flex-col justify-center group max-w-2xl">
                   {/* Stars with animation */}
                   <div className="flex justify-center gap-1.5 sm:gap-2 mb-6 sm:mb-8">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 transition-all duration-700 ${
-                          i < review.rating
+                        className={`w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 transition-all duration-700 ${i < review.rating
                             ? "fill-[#F59E0B] text-[#F59E0B] group-hover:scale-110"
                             : "fill-gray-200/50 text-gray-300"
-                        }`}
+                          }`}
                         style={{ transitionDelay: `${i * 80}ms` }}
                       />
                     ))}
@@ -144,20 +143,20 @@ export default function ReviewSection() {
 
                   {/* Review Text */}
                   <blockquote className="relative mb-8 sm:mb-10">
-                  <div className="absolute -top-8 sm:-top-10 -left-6 sm:-left-8 opacity-12 text-primary hidden sm:block review-quote">
-                      <Quote size={110} className="sm:w-[120px] sm:h-[120px]" />
+                    <div className="absolute -top-6 -left-2 opacity-10 text-primary hidden sm:block review-quote">
+                      <Quote size={80} />
                     </div>
-                    <p className="text-[#2E251F] text-base sm:text-lg md:text-xl lg:text-2xl leading-[1.8] sm:leading-[1.9] italic relative z-10 font-extralight px-4">
+                    <p className="text-[#2E251F] text-base sm:text-lg md:text-xl leading-relaxed italic relative z-10 font-normal px-2">
                       "{review.text}"
                     </p>
                   </blockquote>
 
                   {/* Author */}
-                  <div className="mt-auto pt-5 sm:pt-6 md:pt-8 border-t border-[#9C775B]/25">
-                    <h3 className="font-semibold text-[#2E251F] text-lg sm:text-xl md:text-2xl mb-2 tracking-tight">
+                  <div className="mt-auto pt-5 sm:pt-6 border-t border-[#9C775B]/20">
+                    <h3 className="font-semibold text-[#2E251F] text-lg sm:text-xl mb-1 tracking-tight">
                       {review.name}
                     </h3>
-                    <p className="text-[#2E251F]/65 text-xs sm:text-sm md:text-base uppercase tracking-wider font-extralight">
+                    <p className="text-[#2E251F]/70 text-xs sm:text-sm uppercase tracking-wider font-medium">
                       {review.title}
                     </p>
                   </div>
@@ -165,13 +164,13 @@ export default function ReviewSection() {
               </SwiperSlide>
             ))}
           </Swiper>
-          
+
           {/* Premium Navigation */}
           <div className="flex justify-center items-center gap-5 sm:gap-6 md:gap-8 mt-8 sm:mt-10">
             <button className="cursor-pointer review-prev-btn review-nav-btn flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full border-2 border-[#9C775B] hover:bg-primary active:bg-primary/80 hover:text-light active:text-light transition-all duration-700 hover:scale-110 active:scale-95 min-w-[44px] min-h-[44px] shadow-lg hover:shadow-xl">
               <ChevronLeft size={20} className="sm:w-[24px] sm:h-[24px] md:w-[28px] md:h-[28px]" />
             </button>
-            
+
             <div className="review-pagination m-0! w-auto! static! flex justify-center gap-x-[6px] min-w-[100px] sm:min-w-[120px] translate-x-0!"></div>
 
             <button className="cursor-pointer review-next-btn review-nav-btn flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full border-2 border-[#9C775B] hover:bg-primary active:bg-primary/80 hover:text-light active:text-light transition-all duration-700 hover:scale-110 active:scale-95 min-w-[44px] min-h-[44px] shadow-lg hover:shadow-xl">
