@@ -25,17 +25,17 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   return (
     <nav
       aria-label="Breadcrumb"
-      className={CommonUtils.cn("mb-8", className)}
+      className={CommonUtils.cn("mb-8 w-full", className)}
     >
-      <ol className="inline-flex items-center space-x-2 text-md text-gray-600">
+      <ol className="flex flex-wrap items-center gap-2 text-md text-gray-600">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
           return (
-            <li key={index} className="inline-flex items-center">
+            <li key={index} className="flex items-center">
               {item.link && !isLast ? (
                 <Link
                   to={item.link}
-                  className="text-gray-700 hover:text-primary transition"
+                  className="text-gray-700 hover:text-primary transition whitespace-normal wrap-break-word"
                 >
                   {item.label}
                 </Link>
@@ -44,6 +44,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
                   aria-current={isLast ? "page" : undefined}
                   className={CommonUtils.cn(
                     isLast ? "font-semibold text-gray-900" : "",
+                    "whitespace-normal wrap-break-word"
                   )}
                 >
                   {item.label}

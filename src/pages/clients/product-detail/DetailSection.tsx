@@ -119,16 +119,20 @@ export default function DetailSection({ productId }: { productId?: string }) {
             </div>
 
             {/* 2. Thumbnail Slider */}
-            <div className="h-12 sm:h-14 md:h-16">
-              <Swiper
-                onSwiper={setThumbsSwiper}
-                spaceBetween={10}
-                slidesPerView={4}
-                freeMode={true}
-                watchSlidesProgress={true}
-                modules={[FreeMode, Navigation, Thumbs]}
-                className="thumbs-gallery h-full"
-              >
+              <div className="h-12 sm:h-14 md:h-16">
+                <Swiper
+                  onSwiper={setThumbsSwiper}
+                  spaceBetween={8}
+                  freeMode={true}
+                  watchSlidesProgress={true}
+                  modules={[FreeMode, Navigation, Thumbs]}
+                  className="thumbs-gallery h-full"
+                  breakpoints={{
+                    0: { slidesPerView: 3 },
+                    480: { slidesPerView: 4 },
+                    768: { slidesPerView: 4 },
+                  }}
+                >
                 {images.map((img, index) => (
                   <SwiperSlide
                     key={index}
@@ -204,28 +208,15 @@ export default function DetailSection({ productId }: { productId?: string }) {
               </ul>
             </div>
 
-            {/* SIZE */}
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Kích thước:</p>
-              <div className="flex gap-2">
-                <button className="px-3 py-1.5 text-sm border border-[#C26A3D] text-[#C26A3D] rounded">
-                  Nến size nhỏ
-                </button>
-                <button className="px-3 py-1.5 text-sm border rounded text-gray-500">
-                  Nến size lớn
-                </button>
-              </div>
-            </div>
-
             {/* QUANTITY + CTA */}
-            <div className="flex gap-4 mt-4">
-              <div className="flex border rounded-lg overflow-hidden">
+            <div className="flex flex-col sm:flex-row gap-4 mt-4">
+              <div className="flex border rounded-lg overflow-hidden w-full sm:w-auto">
                 <button className="px-3">−</button>
                 <div className="px-4 py-2">1</div>
                 <button className="px-3">+</button>
               </div>
 
-              <button className="flex-1 border cursor-pointer border-dark rounded-lg font-medium hover:bg-dark hover:text-white transition">
+              <button className="w-full sm:flex-1 border cursor-pointer border-dark rounded-lg font-medium hover:bg-dark hover:text-white transition">
                 THÊM VÀO GIỎ
               </button>
             </div>

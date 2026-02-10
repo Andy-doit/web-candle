@@ -39,20 +39,20 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
   }, []);
 
   return (
-    <header className="bg-white relative top-0 left-0 right-0 z-50 py-4 px-4 md:px-12 shadow-sm">
+    <header className="bg-white relative top-0 left-0 right-0 z-50 py-4 px-4 md:px-12">
       <div className="max-w-7xl mx-auto flex items-center justify-between relative">
         {/* Mobile Menu Button - Left on Mobile */}
         <button
           className="text-dark hover:text-primary transition md:hidden order-1"
-          onClick={() => setIsMenuOpen(true)}
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
-          <Menu className="w-6 h-6" />
+          {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
 
         {/* Logo - Center on Mobile, Left on Desktop */}
         <Link to="/" className="flex items-center order-2 md:order-1 absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0">
           <img
-            src="/logo_2.png"
+            src="/logo_2.png" // Đường dẫn ảnh trong thư mục public
             alt="Miss Candle Logo"
             className="h-12 w-auto object-contain"
           />
@@ -65,13 +65,13 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
 
             if (isProduct) {
               return (
-                <div key={item.path} className="group relative">
+                <div key={item.path} className="group">
                   <NavLink
                     to={item.path}
                     className={({ isActive }) =>
                       `
-                      flex items-center gap-1 text-base font-medium transition py-2
-                      ${isActive ? "text-primary" : "text-dark hover:text-primary"}
+                      flex items-center gap-1 text-lg transition
+                      ${isActive ? "text-primary font-semibold" : "text-dark hover:underline"}
                       `
                     }
                   >
@@ -79,54 +79,59 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
                     <ChevronDown className="w-4 h-4 mt-0.5" />
                   </NavLink>
 
-                  {/* Dropdown Categories - Desktop */}
+                  {/* Dropdown Categories */}
                   <div
                     className="
-                      absolute left-1/2 -translate-x-1/2 top-full mt-0 w-[800px]
-                      bg-white shadow-xl border border-gray-100 rounded-xl
-                      opacity-0 invisible transform translate-y-2
-                      group-hover:opacity-100 group-hover:visible group-hover:translate-y-0
-                      transition-all duration-300 z-50
+                      absolute left-0 top-full mt-2 min-w-full
+                      bg-white shadow-lg
+                      opacity-0 invisible
+                      group-hover:opacity-100 group-hover:visible
+                      transition-all duration-200 z-50
                     "
                   >
-                    <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white transform rotate-45 border-l border-t border-gray-100"></div>
-                    <ul className="grid grid-cols-4 gap-6 p-8 relative bg-white rounded-xl overflow-hidden">
+                    <ul className="grid grid-cols-4 gap-x-8 gap-y-6 p-6">
                       {categories.map(cat => (
                         <Link
                           key={cat.id}
                           to={`/products/category/${cat.name}/${cat.id}`}
-                          className="group/item flex flex-col items-center gap-3 text-center"
+                          className="
+                            flex items-center gap-3
+                            text-sm text-dark
+                            hover:text-primary transition
+                          "
                         >
-                          <div className="w-20 h-20 rounded-full bg-gray-50 flex items-center justify-center p-2 group-hover/item:bg-[#FDFAF5] transition-colors duration-300">
+                          <div className="w-14 h-14 shrink-0">
                             {cat.image_url ? (
                               <img
                                 src={cat.image_url}
                                 alt={cat.name}
-                                className="w-full h-full object-contain mix-blend-multiply group-hover/item:scale-110 transition-transform duration-500"
+                                className="w-full h-full object-contain"
                               />
                             ) : (
-                              <div className="w-full h-full rounded-full bg-gray-200" />
+                              <div className="w-full h-full rounded bg-gray-100" />
                             )}
                           </div>
-                          <span className="text-sm font-medium text-dark group-hover/item:text-primary transition-colors">
+                          <div className="text-lg tracking-wide">
                             {cat.name}
-                          </span>
+                          </div>
                         </Link>
                       ))}
                     </ul>
                   </div>
+
                 </div>
               )
             }
 
+            // Các menu còn lại
             return (
               <NavLink
                 key={item.path}
                 to={item.path}
                 className={({ isActive }) =>
                   `
-                  text-base font-medium transition
-                  ${isActive ? "text-primary" : "text-dark hover:text-primary"}
+                  text-lg transition font-normal font-sans
+                  ${isActive ? "text-primary font-semibold" : "text-dark hover:underline"}
                   `
                 }
               >
@@ -138,20 +143,20 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
 
         {/* Icons (Cart) - Right on both */}
         <div className="flex items-center gap-3 order-3">
-          <button
-            className="group relative p-2 rounded-full hover:bg-gray-50 transition-all duration-300 cursor-pointer"
+          <button 
+            className="group relative p-2 rounded-lg hover:bg-gray-100 transition-all duration-300 cursor-pointer"
             onClick={() => navigate('/cart')}
             title="Giỏ hàng"
           >
             <ShoppingBag className="w-6 h-6 text-dark group-hover:text-primary transition-colors" />
-            <span className="absolute top-0 right-0 w-4 h-4 bg-primary rounded-full text-[10px] font-bold flex items-center justify-center text-white shadow-sm">
+            <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-primary rounded-full text-[11px] font-semibold flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform duration-200">
               0
             </span>
           </button>
         </div>
       </div>
 
-      {/* Mobile Sidebar Drawer */}
+      {/* Mobile Navigation Menu */}
       <AnimatePresence>
         {isMenuOpen && (
           <>
@@ -161,7 +166,7 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="fixed inset-0 bg-black/40 z-[60] md:hidden"
+              className="fixed inset-0 bg-black/40 z-60 md:hidden"
               onClick={() => setIsMenuOpen(false)}
             />
 
@@ -171,7 +176,7 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed top-0 left-0 bottom-0 w-[85%] max-w-[320px] bg-white z-[70] shadow-2xl md:hidden overflow-hidden flex flex-col"
+              className="fixed top-0 left-0 bottom-0 w-[85%] max-w-[320px] bg-white z-70 shadow-2xl md:hidden overflow-hidden flex flex-col"
             >
               {/* Drawer Header */}
               <div className="flex items-center justify-between p-5 border-b border-gray-100">
@@ -268,6 +273,5 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
     </header>
   )
 }
-
 
 export default MissCandleHeader

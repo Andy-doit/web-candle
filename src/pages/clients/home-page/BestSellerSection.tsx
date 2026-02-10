@@ -3,30 +3,43 @@ import { useEffect, useState } from "react";
 import { IProductBase } from "../../../types";
 import { ProductApi } from "../../../apis";
 
-const NOTE2_ORDER = ["1", "2", "3", "4"];
-
 export default function BestSellerSection() {
-  const [products, setProducts] = useState<IProductBase[]>([])
+  const [products, setProducts] = useState<IProductBase[]>([]);
 
-  const loadProducts = async (categoryId?: number) => {
+  const loadProducts = async (categoryId: string) => {
     try {
-      const res = await ProductApi.getAllProducts({
-        categoryId
-      })
+      const res = await ProductApi.getProductByCategory(categoryId);
 
       if (res?.data) {
-        const filteredProducts = res.data
-          .filter(
-            (p) => p.note2 && NOTE2_ORDER.includes(String(p.note2))
-          )
-          .sort(
-            (a, b) =>
-              NOTE2_ORDER.indexOf(String(a.note2)) -
-              NOTE2_ORDER.indexOf(String(b.note2))
-          )
-          .slice(0, 4);
+        const filteredProducts = res.data;
 
-        setProducts(filteredProducts);
+        // Some endpoints may return lightweight product objects without `categories`.
+        // If that's the case, fetch full product details for each item so
+        // the card can show category names.
+        const needDetails = filteredProducts.some(
+          (p) => !p.categories || p.categories.length === 0
+        );
+
+        if (needDetails) {
+          try {
+            const detailed = await Promise.all(
+              filteredProducts.map(async (p) => {
+                try {
+                  const d = await ProductApi.getProductById(p.id);
+                  return d?.data ?? p;
+                } catch (e) {
+                  return p;
+                }
+              })
+            );
+            setProducts(detailed);
+          } catch (e) {
+            // fallback to whatever we have
+            setProducts(filteredProducts);
+          }
+        } else {
+          setProducts(filteredProducts);
+        }
       }
     } catch (e) {
       console.error(e);
@@ -34,11 +47,11 @@ export default function BestSellerSection() {
   };
 
   useEffect(() => {
-    loadProducts();
+    loadProducts("0f3de8aa-52d6-4118-8731-658a29470eb5");
   }, []);
 
   return (
-    <section className="bg-light py-10 md:py-20 px-4 md:px-8 lg:px-12">
+    <section className="bg-light pt-10 md:pt-20 px-4 md:px-8 lg:px-12">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8 md:mb-12">
@@ -52,7 +65,10 @@ export default function BestSellerSection() {
 
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
           {products.map((product) => (
-            <MissCandleProductCard key={product.id} product={product} />
+            <MissCandleProductCard
+              key={product.id}
+              product={product}
+            />
           ))}
         </div>
       </div>
