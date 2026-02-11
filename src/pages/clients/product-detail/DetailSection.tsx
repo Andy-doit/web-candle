@@ -228,7 +228,7 @@ export default function DetailSection({ productId }: { productId?: string }) {
             {/* HOTLINE */}
             <p className="text-sm text-center text-dark/70">
               Gọi đặt mua{" "}
-              <span className="text-[#C26A3D] font-semibold">0395.621.315</span>{" "}
+              <span className="text-[#C26A3D] font-semibold">0903.955.018</span>{" "}
               (7:30 - 22:00)
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm text-dark border-t border-dashed border-gray-200 pt-6">

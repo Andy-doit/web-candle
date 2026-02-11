@@ -14,7 +14,7 @@ export default function ReligiousCandleSection() {
       try {
         const res = await CategoryApi.getAllCategories({});
         if (res?.data) {
-          setCategories(res.data.slice(0, 3));
+          setCategories(res.data.slice(1, 4));
         }
       } catch (e) {
         console.error(e);

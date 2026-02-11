@@ -24,12 +24,13 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
     const loadCategories = async () => {
       try {
         const res = await CategoryApi.getAllCategories({});
-        if (res?.data) {
-          const rootCategories = res.data.filter(
-            (cat: ICategoryBase) => cat.parent_uuid === null
-          );
-          setCategories(rootCategories);
-        }
+        // if (res?.data) {
+        //   const rootCategories = res.data.filter(
+        //     (cat: ICategoryBase) => cat.parent_uuid === null
+        //   );
+        //   setCategories(rootCategories);
+        // }
+        setCategories(res.data);
       } catch (e) {
         console.error(e);
       }
@@ -90,7 +91,7 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
                     "
                   >
                     <ul className="grid grid-cols-4 gap-x-8 gap-y-6 p-6">
-                      {categories.map(cat => (
+                      {categories.slice(1).map(cat => (
                         <Link
                           key={cat.id}
                           to={`/products/category/${cat.name}/${cat.id}`}
@@ -221,7 +222,7 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
                                 className="overflow-hidden bg-[#FAFAFA]"
                               >
                                 <div className="py-2">
-                                  {categories.map(cat => (
+                                  {categories.slice(1).map(cat => (
                                     <Link
                                       key={cat.id}
                                       to={`/products/category/${cat.name}/${cat.id}`}

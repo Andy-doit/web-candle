@@ -34,8 +34,9 @@ export default function ProductsPage() {
 
         if (categoryRes?.data) {
           // Assuming we want to show all top-level categories.
-          const rootCats = categoryRes.data.filter(c => !c.parent_uuid);
-          setCategories(rootCats);
+          // const rootCats = categoryRes.data.filter(c => !c.parent_uuid);
+          // setCategories(rootCats);
+          setCategories(categoryRes.data);
         }
       } catch (e) {
         console.error(e);
@@ -106,7 +107,7 @@ export default function ProductsPage() {
         />
 
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-black text-white tracking-[0.2em] uppercase mb-4 [text-shadow:_0_4px_20px_rgb(0_0_0_/_80%)]">
+          <h1 className="text-4xl md:text-6xl font-black text-white tracking-[0.2em] uppercase mb-4 [text-shadow:0_4px_20px_rgb(0_0_0/80%)]">
             {pageTitle}
           </h1>
           <div className="w-24 h-1.5 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
@@ -132,7 +133,7 @@ export default function ProductsPage() {
               </h3>
               <div className="flex flex-col space-y-3">
 
-                {categories.map(cat => (
+                {categories.slice(1).map(cat => (
                   <NavLink
                     key={cat.id}
                     to={`/products/category/${cat.name}/${cat.id}`}
@@ -181,14 +182,14 @@ export default function ProductsPage() {
                 <button
                   onClick={() => setIsSortOpen(!isSortOpen)}
                   onBlur={() => setTimeout(() => setIsSortOpen(false), 200)}
-                  className="flex items-center gap-2 text-sm font-medium text-dark bg-white border border-gray-200 rounded-lg px-4 py-2 hover:border-primary hover:text-primary transition-colors min-w-[160px] justify-between"
+                  className="flex items-center gap-2 text-sm font-medium text-dark bg-white border border-gray-200 rounded-lg px-4 py-2 hover:border-primary hover:text-primary transition-colors min-w-40 justify-between"
                 >
                   <span>{sortOptions.find(o => o.value === sortOption)?.label}</span>
                   <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isSortOpen ? 'rotate-180' : ''}`} />
                 </button>
 
                 {isSortOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-full min-w-[160px] bg-white border border-gray-100 rounded-lg shadow-xl z-50 py-1 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                  <div className="absolute right-0 top-full mt-2 w-full min-w-40 bg-white border border-gray-100 rounded-lg shadow-xl z-50 py-1 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
                     {sortOptions.map((option) => (
                       <div
                         key={option.value}
