@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { ICategoryBase } from "../../../types";
 import { CategoryApi } from "../../../apis";
 import { useNavigate } from "react-router-dom";
+import { Status } from "../../../constants/admin";
 
 export default function ReligiousCandleSection() {
   const navigate = useNavigate();
@@ -12,9 +13,9 @@ export default function ReligiousCandleSection() {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const res = await CategoryApi.getAllCategories({});
+        const res = await CategoryApi.getCategoryByStatus(Status.SHOW);
         if (res?.data) {
-          setCategories(res.data.slice(1, 4));
+          setCategories(res.data);
         }
       } catch (e) {
         console.error(e);

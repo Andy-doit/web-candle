@@ -7,6 +7,7 @@ import Breadcrumbs from "../../../components/ui/breadcrumb";
 
 import { NavLink, useParams } from "react-router-dom";
 import { ChevronDown, Check } from "lucide-react";
+import { Status } from "../../../constants/admin";
 
 export default function ProductsPage() {
   const { categoryId, name: categoryName } = useParams<{ categoryId: string; name: string }>();
@@ -24,8 +25,8 @@ export default function ProductsPage() {
       try {
         setLoading(true);
         const [productRes, categoryRes] = await Promise.all([
-          ProductApi.getAllProducts({}),
-          CategoryApi.getAllCategories({})
+          ProductApi.getCategoryByStatus(Status.LIST_ALL),
+          CategoryApi.getCategoryByStatus(Status.LIST_ALL)
         ]);
 
         if (productRes?.data) {

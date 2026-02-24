@@ -1,6 +1,6 @@
 import {AxiosResponse} from 'axios';
 import {AxiosService} from "./axios.service.ts";
-import {ApiConstant} from '../constants/admin';
+import {ApiConstant, Status} from '../constants/admin';
 import {IProductBase} from "../types";
 
 export class ProductApi {
@@ -17,5 +17,9 @@ export class ProductApi {
 
   static async getProductByCategory(id: string): Promise<AxiosResponse<IProductBase[]>> {
     return this.axiosInstance.get(`${this.productPath}/by-category-id/${id}`);
+  }
+
+  static async getCategoryByStatus(status: Status): Promise<AxiosResponse<IProductBase[]>> {
+    return this.axiosInstance.get(`${this.productPath}`, { params: { status } });
   }
 }

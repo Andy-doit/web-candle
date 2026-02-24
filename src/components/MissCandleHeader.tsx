@@ -4,6 +4,7 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom"
 import { AnimatePresence, motion } from "motion/react";
 import { CategoryApi } from "../apis";
 import { ICategoryBase } from "../types";
+import { Status } from "../constants/admin";
 
 const MENU_ITEMS: { label: string, path: string }[] = [
   { label: "Trang chủ", path: "/" },
@@ -23,7 +24,7 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const res = await CategoryApi.getAllCategories({});
+        const res = await CategoryApi.getCategoryByStatus(Status.LIST_ALL);
         // if (res?.data) {
         //   const rootCategories = res.data.filter(
         //     (cat: ICategoryBase) => cat.parent_uuid === null

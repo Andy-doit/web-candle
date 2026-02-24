@@ -1,6 +1,6 @@
 import {AxiosResponse} from 'axios';
 import {AxiosService} from "./axios.service.ts";
-import {ApiConstant} from '../constants/admin';
+import {ApiConstant, Status} from '../constants/admin';
 import {ICategoryBase} from "../types";
 
 export class CategoryApi {
@@ -9,5 +9,13 @@ export class CategoryApi {
 
   static async getAllCategories(query: unknown): Promise<AxiosResponse<ICategoryBase[]>> {
     return this.axiosInstance.get(`${this.categoryPath}`, {params: {query}});
+  }
+
+  static async getCategoryByParentId(id: string): Promise<AxiosResponse<ICategoryBase[]>> {
+    return this.axiosInstance.get(`${this.categoryPath}/children/${id}`);
+  }
+
+  static async getCategoryByStatus(status: Status): Promise<AxiosResponse<ICategoryBase[]>> {
+    return this.axiosInstance.get(`${this.categoryPath}`, { params: { status } });
   }
 }

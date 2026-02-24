@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import {MissCandleSpecialCollection} from "../../../components";
 import { ICategoryBase } from "../../../types";
 import { CategoryApi } from "../../../apis";
+import { Status } from "../../../constants/admin";
 
 export default function CollectionSpecialSection() {
   const [isVisible, setIsVisible] = useState(false);
@@ -34,7 +35,7 @@ export default function CollectionSpecialSection() {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const res = await CategoryApi.getAllCategories({});
+        const res = await CategoryApi.getCategoryByStatus(Status.SHOW);
         if (res?.data) {
           setCategories(res.data);
         }

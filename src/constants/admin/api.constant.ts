@@ -1,3 +1,7 @@
+export enum Status {
+  LIST_ALL = 'LIST_ALL',
+  SHOW = 'SHOW',
+}
 export class ApiConstant {
 
   static readonly ENTITIES_PATH = {
