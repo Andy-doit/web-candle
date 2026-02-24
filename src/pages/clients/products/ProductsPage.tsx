@@ -43,18 +43,13 @@ const AccordionItem = ({ parent, selectedChildId, onSelectChild }: AccordionItem
 
   return (
     <div className="relative">
-      {/* Animated left accent bar */}
-      <span
-        className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 rounded-full bg-primary transition-all duration-300
-          ${isOpen || isChildSelected ? "h-5 opacity-100" : "h-0 opacity-0"}`}
-      />
 
       {/* Parent row */}
       <button
         onClick={toggle}
         className={`w-full flex items-center justify-between pl-4 pr-1 py-3.5 text-left transition-colors duration-200 group`}
       >
-        <span className={`text-[13px] tracking-wide transition-colors duration-200
+        <span className={`text-[15px] tracking-wide transition-colors duration-200
           ${isOpen || isChildSelected
             ? "text-primary font-semibold"
             : "text-gray-600 font-medium group-hover:text-primary"
@@ -95,12 +90,17 @@ const AccordionItem = ({ parent, selectedChildId, onSelectChild }: AccordionItem
                   <button
                     key={child.id}
                     onClick={() => onSelectChild(child)}
-                    className={`w-full text-left py-2 text-[12.5px] flex items-center gap-2 transition-colors duration-150
+                    className={`relative w-full text-left py-2 text-[14px] flex items-center gap-2 transition-colors duration-150 pl-3
                       ${isActive
                         ? "text-primary font-semibold"
-                        : "text-gray-400 hover:text-primary"
+                        : "text-gray-600 hover:text-primary"
                       }`}
                   >
+                    {/* Left accent bar – only when active */}
+                    <span
+                      className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 rounded-full bg-primary transition-all duration-300
+                        ${isActive ? "h-4 opacity-100" : "h-0 opacity-0"}`}
+                    />
                     <span className={`inline-block w-1 h-1 rounded-full shrink-0 transition-colors duration-150
                       ${isActive ? "bg-primary" : "bg-gray-300"}`}
                     />
@@ -253,7 +253,7 @@ export default function ProductsPage() {
           <aside className="hidden lg:flex lg:col-span-3 flex-col gap-6">
             {/* Category Accordion */}
             <div>
-              <h3 className="text-[11px] font-bold text-gray-400 tracking-[0.2em] uppercase mb-5">
+              <h3 className="text-[13px] font-extrabold text-gray-500 tracking-[0.2em] uppercase mb-5">
                 Danh Mục
               </h3>
               <div className="space-y-2">
