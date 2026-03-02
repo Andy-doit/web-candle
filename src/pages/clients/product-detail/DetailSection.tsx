@@ -290,9 +290,9 @@ export default function DetailSection({ productId }: { productId?: string }) {
               {activeTab === 'description' && (
                 <div className="space-y-8">
                   <div className="text-dark text-justify leading-relaxed space-y-4">
-                    <p>
-                      {product.description || "Mô tả sản phẩm không có sẵn"}
-                    </p>
+                    <div 
+                      dangerouslySetInnerHTML={{ __html: product.description }}
+                    />
                   </div>
 
                   <div>
