@@ -7,6 +7,7 @@ export class ApiConstant {
   static readonly ENTITIES_PATH = {
     CATEGORIES: 'categories',
     PRODUCTS: 'products',
+    BANNERS: 'banners',
   }
 
   static readonly HTTP_STATUS_CODE = {

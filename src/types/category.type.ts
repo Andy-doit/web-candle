@@ -29,3 +29,14 @@ export interface IProductBase {
   updatedAt: string // ISO date
   categories: ICategoryBase[]
 }
+
+export interface IBannerBase {
+  id: string
+  title: string
+  description: string
+  image: string
+  button_link: string
+  background_color: string
+  status: number
+  position: number
+}
