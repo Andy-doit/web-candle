@@ -1,80 +1,167 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MissCandleButton } from "../../../components";
+import { ProductApi } from "../../../apis/product.api";
+import { IBannerBase } from "../../../types";
 
 export default function HeroSection() {
   const navigate = useNavigate();
+  const [banners, setBanners] = useState<IBannerBase[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const fetchBanners = async () => {
+      try {
+        const res = await ProductApi.getBanners();
+        // Xử lý response theo định dạng wrap của axios (có thể nằm trong res.data hoặc res.data.data)
+        const data = (res as any).data;
+        const bannerList = data?.data || data || [];
+        if (Array.isArray(bannerList) && bannerList.length > 0) {
+          // Chỉ lấy các banner đang active
+          const activeBanners = bannerList.filter((b: any) => b.status === 1);
+          setBanners(activeBanners.length > 0 ? activeBanners : bannerList);
+        }
+      } catch (error) {
+        console.error("Failed to fetch banners:", error);
+      }
+    };
+    fetchBanners();
+  }, []);
+
+  // Tự động chuyển slide mỗi 5 giây
+  useEffect(() => {
+    if (banners.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % banners.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [banners.length]);
+
+  if (banners.length === 0) {
+    // Hiển thị skeleton loading nếu chưa có data
+    return (
+      <section className="bg-hero min-h-[500px] flex items-center justify-center py-10">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </section>
+    );
+  }
+
+  const currentBanner = banners[currentIndex];
+  // Sử dụng màu nền từ api nếu có, mặc định là #F2B279
+  const bgColor = currentBanner.background_color || "#F2B279";
+
   return (
-    <section className="bg-hero py-10 md:py-12">
+    <section
+      className="py-10 md:py-12 transition-colors duration-1000 ease-in-out relative"
+      style={{ backgroundColor: bgColor }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
 
           {/* Left Content - Desktop */}
-          <div className="space-y-6 hidden md:block">
-            <div className="space-y-2">
-              <h1 className="text-6xl font-bold text-dark leading-tight">
-                Lan Tỏa
-              </h1>
-              <h2 className="text-6xl italic font-light text-light">
-                Cảm Xúc
-              </h2>
-              <p className="text-6xl font-bold text-dark">
-                Tinh Tế
-              </p>
-            </div>
+          <div className="space-y-6 hidden md:block z-10">
+            <div
+              className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight drop-shadow-sm min-h-[140px] flex flex-col justify-end"
+              dangerouslySetInnerHTML={{ __html: currentBanner.title }}
+            />
 
-            {/* Description - chỉ hiện desktop */}
-            <p className="text-dark/90 text-base leading-relaxed max-w-md">
-              Khám phá bộ sưu tập nến thơm cao cấp của chúng tôi, được tạo ra từ những nguyên liệu tự nhiên tinh tế nhất, mang lại không gian sống của bạn sự ấm áp và thanh lịch.
-            </p>
+            <div
+              className="text-base leading-relaxed max-w-md drop-shadow-sm font-medium min-h-[50px]"
+              dangerouslySetInnerHTML={{ __html: currentBanner.description }}
+            />
 
-            <div className="flex gap-4 pt-4">
-              <MissCandleButton
-                onClickButton={() => navigate('/products')}
-                textDisplay="Khám phá sản phẩm"
-                variant="primary"
-              />
-              {/* <MissCandleButton
-                onClickButton={() => null}
-                textDisplay="Tìm hiểu thêm"
-                variant="primary"
-              /> */}
+            <div className="flex flex-col gap-6 pt-4">
+              <div className="flex gap-4">
+                <MissCandleButton
+                  onClickButton={() => {
+                    const link = currentBanner.button_link;
+                    if (link && link.startsWith("http")) {
+                      window.location.href = link;
+                    } else if (link) {
+                      navigate(link);
+                    } else {
+                      navigate('/products');
+                    }
+                  }}
+                  textDisplay="Khám phá sản phẩm"
+                  variant="primary"
+                />
+              </div>
+
+              {/* Dots navigation */}
+              {banners.length > 1 && (
+                <div className="flex gap-2">
+                  {banners.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentIndex(idx)}
+                      aria-label={`Go to slide ${idx + 1}`}
+                      className={`h-2.5 rounded-full transition-all duration-300 ${currentIndex === idx ? "w-8 bg-black/80" : "w-2.5 bg-black/30 hover:bg-black/50"
+                        }`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
           {/* Right Image + Mobile Overlay */}
-          <div className="relative h-105 md:h-137 rounded-3xl overflow-hidden shadow-2xl">
-            <img
-              src="/section-hero-2.png"
-              alt="Hero Product Right"
-              className="w-full h-full object-cover"
-            />
+          <div className="relative h-105 md:h-[600px] rounded-[2rem] overflow-hidden shadow-2xl group z-10">
+            {banners.map((banner, idx) => (
+              <img
+                key={banner.id || idx}
+                src={banner.image}
+                alt={`Banner ${idx + 1}`}
+                className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-in-out ${currentIndex === idx
+                    ? "opacity-100 scale-100 z-10"
+                    : "opacity-0 scale-105 z-0"
+                  }`}
+              />
+            ))}
 
             {/* Overlay content - chỉ hiện mobile */}
-            <div className="absolute inset-0 flex flex-col justify-end p-6 bg-black/30 md:hidden">
-              <div className="space-y-1 mb-4">
-                <h1 className="text-3xl font-bold text-white leading-tight">
-                  Lan Tỏa
-                </h1>
-                <h2 className="text-3xl italic font-light text-white">
-                  Cảm Xúc
-                </h2>
-                <p className="text-3xl font-bold text-white">
-                  Tinh Tế
-                </p>
-              </div>
+            <div className="absolute inset-x-0 bottom-0 top-1/2 flex flex-col justify-end p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent md:hidden z-20">
+              <div
+                className="text-3xl font-bold text-white leading-tight mb-2 drop-shadow-md"
+                dangerouslySetInnerHTML={{ __html: currentBanner.title }}
+              />
 
-              <div className="flex flex-col gap-3">
+              <div
+                className="text-white/90 text-sm mb-4 drop-shadow-md line-clamp-2"
+                dangerouslySetInnerHTML={{ __html: currentBanner.description }}
+              />
+
+              <div className="flex flex-col gap-4">
                 <MissCandleButton
-                  onClickButton={() => null}
+                  onClickButton={() => {
+                    const link = currentBanner.button_link;
+                    if (link && link.startsWith("http")) {
+                      window.location.href = link;
+                    } else if (link) {
+                      navigate(link);
+                    } else {
+                      navigate('/products');
+                    }
+                  }}
                   textDisplay="Khám phá sản phẩm"
                   variant="primary"
                 />
-                {/* <MissCandleButton
-                  onClickButton={() => null}
-                  textDisplay="Tìm hiểu thêm"
-                  variant="primary"
-                /> */}
               </div>
+
+              {/* Dots navigation Mobile */}
+              {banners.length > 1 && (
+                <div className="flex justify-center gap-2 pt-5">
+                  {banners.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentIndex(idx)}
+                      aria-label={`Go to slide ${idx + 1}`}
+                      className={`h-1.5 rounded-full transition-all duration-300 drop-shadow-sm ${currentIndex === idx ? "bg-white w-6" : "bg-white/50 w-1.5"
+                        }`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
