@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { MissCandleButton } from "../../../components";
 import { ProductApi } from "../../../apis/product.api";
 import { IBannerBase } from "../../../types";
+import { Status } from "../../../constants/admin";
 
 export default function HeroSection() {
   const navigate = useNavigate();
@@ -12,12 +13,10 @@ export default function HeroSection() {
   useEffect(() => {
     const fetchBanners = async () => {
       try {
-        const res = await ProductApi.getBanners();
-        // Xử lý response theo định dạng wrap của axios (có thể nằm trong res.data hoặc res.data.data)
+        const res = await ProductApi.getBanners(Status.SHOW);
         const data = (res as any).data;
         const bannerList = data?.data || data || [];
         if (Array.isArray(bannerList) && bannerList.length > 0) {
-          // Chỉ lấy các banner đang active
           const activeBanners = bannerList.filter((b: any) => b.status === 1);
           setBanners(activeBanners.length > 0 ? activeBanners : bannerList);
         }

@@ -8,8 +8,8 @@ export class ProductApi {
   private static productPath = ApiConstant.ENTITIES_PATH.PRODUCTS;
   private static bannerPath = ApiConstant.ENTITIES_PATH.BANNERS;
 
-  static async getBanners(): Promise<AxiosResponse<IBannerBase[]>> {
-    return this.axiosInstance.get(`${this.bannerPath}`);
+  static async getBanners(status: Status): Promise<AxiosResponse<IBannerBase[]>> {
+    return this.axiosInstance.get(`${this.bannerPath}`, { params: { status } });
   }
 
   static async getBannerById(id: string | number): Promise<AxiosResponse<IBannerBase>> {
