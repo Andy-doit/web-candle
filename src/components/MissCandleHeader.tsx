@@ -9,6 +9,7 @@ import { Status } from "../constants/admin";
 const MENU_ITEMS: { label: string, path: string }[] = [
   { label: "Trang chủ", path: "/" },
   { label: "Sản phẩm", path: "/products" },
+  { label: "Bài viết", path: "/blog" },
   { label: "Về chúng tôi", path: "/about-us" },
   { label: "Chính sách sỉ", path: "/wholesales" },
   { label: "Liên hệ", path: "/contact" },
@@ -145,7 +146,7 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
 
         {/* Icons (Cart) - Right on both */}
         <div className="flex items-center gap-3 order-3">
-          <button 
+          <button
             className="group relative p-2 rounded-lg hover:bg-gray-100 transition-all duration-300 cursor-pointer"
             onClick={() => navigate('/cart')}
             title="Giỏ hàng"

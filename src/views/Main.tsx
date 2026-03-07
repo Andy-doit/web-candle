@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import { MainLayout } from "../layouts";
-import { HomePage, ProductDetailPage, ProductsPage } from "../pages/clients";
+import { HomePage, ProductDetailPage, ProductsPage, BlogListPage, BlogDetailPage } from "../pages/clients";
 import { CartPage } from "../pages/clients/cart/CartPage";
 
 
@@ -14,6 +14,8 @@ export default function Main() {
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/products/category/:name/:categoryId" element={<ProductsPage />} />
                 <Route path="/products/category/:name/:categoryId/detail/:id" element={<ProductDetailPage />} />
+                <Route path="/blog" element={<BlogListPage />} />
+                <Route path="/blog/:slug" element={<BlogDetailPage />} />
                 {/*<Route path="/contact" element={<Contact />} />*/}
             </Route>
         </Routes>
