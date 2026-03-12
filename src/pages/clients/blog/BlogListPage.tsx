@@ -80,9 +80,6 @@ function BlogHeroCarousel({ posts }: { posts: IBlogPost[] }) {
                                 src={post.image}
                                 alt={post.title}
                                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                                onError={(e) => {
-                                    (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1602524809098-d62b3a8b53a2?w=1200&q=80";
-                                }}
                             />
                             {/* Gradient overlay */}
                             <div className="absolute inset-0 bg-gradient-to-t from-[#1a110a]/90 via-[#1a110a]/40 to-transparent" />
@@ -144,9 +141,6 @@ function BlogCard({ post, index }: { post: IBlogPost; index: number }) {
                         src={post.image}
                         alt={post.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        onError={(e) => {
-                            (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1602524809098-d62b3a8b53a2?w=800&q=80";
-                        }}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-350" />
                     <div className="absolute bottom-3 right-3 bg-[#BF8055] text-white text-xs px-2.5 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-1">
@@ -206,9 +200,6 @@ function SidebarPostCarousel({ posts }: { posts: IBlogPost[] }) {
                                 src={post.image}
                                 alt={post.title}
                                 className="w-16 h-16 rounded-xl object-cover shrink-0 group-hover:opacity-80 transition-opacity"
-                                onError={(e) => {
-                                    (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1602524809098-d62b3a8b53a2?w=200&q=60";
-                                }}
                             />
                             <div className="min-w-0">
                                 <p className="text-xs text-[#BF8055] mb-0.5">{formatDate(post.created_at)}</p>

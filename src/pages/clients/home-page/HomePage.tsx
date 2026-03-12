@@ -5,6 +5,7 @@ import HeroSection from "./HeroSection.tsx";
 import ReviewSection from "./ReviewSection.tsx";
 import StorySection from "./StorySection.tsx";
 import BestSellerSection from "./BestSellerSection.tsx";
+import PostSection from "./PostSection.tsx";
 
 export default function HomePage() {
   return (
@@ -13,6 +14,7 @@ export default function HomePage() {
       <BestSellerSection></BestSellerSection>
       <ReligiousCandleSection></ReligiousCandleSection>
       <StorySection></StorySection>
+      <PostSection></PostSection>
       <CollectionSpecialSection></CollectionSpecialSection>
       <ReviewSection></ReviewSection>
     </>

@@ -104,7 +104,7 @@ export default function HeroSection() {
             </div>
           </div>
 
-          {/* Right Image + Mobile Overlay */}
+          {/* Right Image */}
           <div className="relative h-105 md:h-[600px] rounded-[2rem] overflow-hidden shadow-2xl group z-10">
             {banners.map((banner, idx) => (
               <img
@@ -118,7 +118,7 @@ export default function HeroSection() {
               />
             ))}
 
-            {/* Overlay content - chỉ hiện mobile */}
+            {/* Overlay content (title + description) - mobile only */}
             <div className="absolute inset-x-0 bottom-0 top-1/2 flex flex-col justify-end p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent md:hidden z-20">
               <div
                 className="text-3xl font-bold text-white leading-tight mb-2 drop-shadow-md"
@@ -126,44 +126,47 @@ export default function HeroSection() {
               />
 
               <div
-                className="text-white/90 text-sm mb-4 drop-shadow-md line-clamp-2"
+                className="text-white/90 text-sm drop-shadow-md line-clamp-2"
                 dangerouslySetInnerHTML={{ __html: currentBanner.description }}
               />
-
-              <div className="flex flex-col gap-4">
-                <MissCandleButton
-                  onClickButton={() => {
-                    const link = currentBanner.button_link;
-                    if (link && link.startsWith("http")) {
-                      window.location.href = link;
-                    } else if (link) {
-                      navigate(link);
-                    } else {
-                      navigate('/products');
-                    }
-                  }}
-                  textDisplay="Khám phá sản phẩm"
-                  variant="primary"
-                />
-              </div>
-
-              {/* Dots navigation Mobile */}
-              {banners.length > 1 && (
-                <div className="flex justify-center gap-2 pt-5">
-                  {banners.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setCurrentIndex(idx)}
-                      aria-label={`Go to slide ${idx + 1}`}
-                      className={`h-1.5 rounded-full transition-all duration-300 drop-shadow-sm ${currentIndex === idx ? "bg-white w-6" : "bg-white/50 w-1.5"
-                        }`}
-                    />
-                  ))}
-                </div>
-              )}
             </div>
           </div>
 
+        </div>
+
+        {/* Mobile Button Section - Below Image */}
+        <div className="md:hidden mt-6 space-y-4">
+          <div className="flex flex-col gap-4">
+            <MissCandleButton
+              onClickButton={() => {
+                const link = currentBanner.button_link;
+                if (link && link.startsWith("http")) {
+                  window.location.href = link;
+                } else if (link) {
+                  navigate(link);
+                } else {
+                  navigate('/products');
+                }
+              }}
+              textDisplay="Khám phá sản phẩm"
+              variant="primary"
+            />
+          </div>
+
+          {/* Dots navigation Mobile */}
+          {banners.length > 1 && (
+            <div className="flex gap-2">
+              {banners.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentIndex(idx)}
+                  aria-label={`Go to slide ${idx + 1}`}
+                  className={`h-2.5 rounded-full transition-all duration-300 ${currentIndex === idx ? "w-8 bg-black/80" : "w-2.5 bg-black/30 hover:bg-black/50"
+                    }`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>

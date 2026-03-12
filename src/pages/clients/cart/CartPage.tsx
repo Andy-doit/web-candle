@@ -20,7 +20,7 @@ export const CartPage = () => {
         />
 
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-black text-white tracking-[0.2em] uppercase mb-4 [text-shadow:_0_4px_20px_rgb(0_0_0_/_80%)]">
+          <h1 className="text-4xl md:text-6xl font-black text-white tracking-[0.2em] uppercase mb-4 [text-shadow:0_4px_20px_rgb(0_0_0/80%)]">
             Giỏ hàng
           </h1>
           <div className="w-24 h-1.5 bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.8)]" />

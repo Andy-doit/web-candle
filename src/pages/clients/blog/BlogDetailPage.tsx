@@ -1,5 +1,5 @@
 import { FunctionComponent, useEffect, useState } from "react";
-import { Calendar, Clock, ChevronRight, ArrowLeft, BookOpen, Share2 } from "lucide-react";
+import { Calendar, ChevronRight, ArrowLeft, BookOpen, Share2 } from "lucide-react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -10,26 +10,17 @@ import { BlogApi } from "../../../apis";
 import { IBlogPost } from "../../../types";
 import { Status } from "../../../constants/admin";
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-
-/** Decode HTML entities and strip tags — properly handles &ocirc;, &aacute; etc. */
-function stripHtml(html: string): string {
-    if (!html) return "";
-    const tmp = document.createElement("div");
-    tmp.innerHTML = html;
-    return (tmp.textContent || tmp.innerText || "").trim();
-}
+// function stripHtml(html: string): string {
+//     if (!html) return "";
+//     const tmp = document.createElement("div");
+//     tmp.innerHTML = html;
+//     return (tmp.textContent || tmp.innerText || "").trim();
+// }
 
 function formatDate(dateStr: string): string {
     const d = new Date(dateStr);
     return d.toLocaleDateString("vi-VN", { day: "2-digit", month: "long", year: "numeric" });
 }
-
-function readingTime(body: string): number {
-    return Math.max(1, Math.round(stripHtml(body).split(/\s+/).length / 200));
-}
-
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
 
 function DetailSkeleton() {
     return (
@@ -44,7 +35,6 @@ function DetailSkeleton() {
     );
 }
 
-// ─── Related Card ─────────────────────────────────────────────────────────────
 
 function RelatedCard({ post }: { post: IBlogPost }) {
     return (
@@ -57,9 +47,6 @@ function RelatedCard({ post }: { post: IBlogPost }) {
                     src={post.image}
                     alt={post.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    onError={(e) => {
-                        (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1602524809098-d62b3a8b53a2?w=600&q=70";
-                    }}
                 />
             </div>
             <div className="p-4 flex flex-col flex-1">
@@ -77,7 +64,6 @@ function RelatedCard({ post }: { post: IBlogPost }) {
     );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
 
 const BlogDetailPage: FunctionComponent = () => {
     const { slug } = useParams<{ slug: string }>();
@@ -123,6 +109,26 @@ const BlogDetailPage: FunctionComponent = () => {
         );
     }
 
+    // Helper to rewrite image src URLs in post.body
+    function fixImageSrc(html: string): string {
+        if (!html) return "";
+        // 1. Nếu src="images-service/..." hoặc src="/images-service/..." hoặc src="cdn/..." hoặc src="/cdn/..." => prepend domain
+        // 2. Nếu src bắt đầu bằng http/https thì giữ nguyên
+        // 3. Nếu src="localhost://..." thì thay bằng domain đúng
+        const DOMAIN = "https://shop-admin.dmhuy.xyz/";
+        return html.replace(/<img[^>]+src=("|')([^"'>]+)("|')/g, (match, _q1, src, _q2) => {
+            let newSrc = src;
+            if (/^(localhost|127\.0\.0\.1|images-service|cdn)[/:]/.test(src)) {
+                newSrc = DOMAIN + src.replace(/^\/*/, "");
+            } else if (/^\/images-service\//.test(src) || /^\/cdn\//.test(src)) {
+                newSrc = DOMAIN + src.replace(/^\//, "");
+            } else if (!/^https?:\/\//.test(src)) {
+                newSrc = DOMAIN + src.replace(/^\/*/, "");
+            }
+            return match.replace(src, newSrc);
+        });
+    }
+
     return (
         <div className="min-h-screen bg-[#FAF7F3]">
             {/* ── Hero Banner ── */}
@@ -131,9 +137,6 @@ const BlogDetailPage: FunctionComponent = () => {
                     src="/banner/products.png"
                     alt={post.title}
                     className="absolute inset-0 w-full h-full object-cover"
-                    onError={(e) => {
-                        (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1602524809098-d62b3a8b53a2?w=1400&q=80";
-                    }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#1a110a]/85 via-[#1a110a]/45 to-transparent" />
 
@@ -166,10 +169,6 @@ const BlogDetailPage: FunctionComponent = () => {
                                 <Calendar className="w-4 h-4" />
                                 {formatDate(post.created_at)}
                             </span>
-                            <span className="flex items-center gap-2 bg-black/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
-                                <Clock className="w-4 h-4" />
-                                {readingTime(post.body)} phút đọc
-                            </span>
                         </div>
                     </motion.div>
                 </div>
@@ -187,14 +186,14 @@ const BlogDetailPage: FunctionComponent = () => {
                         className="flex-1 min-w-0"
                     >
                         {/* Short text lead — rendered as rich text HTML */}
-                        {post.short_text && (
+                        {/* {post.short_text && (
                             <div className="blog-lead mb-8" dangerouslySetInnerHTML={{ __html: post.short_text }} />
-                        )}
+                        )} */}
 
                         {/* Body content — rich text HTML */}
                         <div
                             className="blog-body"
-                            dangerouslySetInnerHTML={{ __html: post.body }}
+                            dangerouslySetInnerHTML={{ __html: fixImageSrc(post.body) }}
                         />
 
                         {/* Share bar */}

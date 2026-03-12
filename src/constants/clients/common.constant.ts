@@ -1,7 +1,7 @@
 export class CommonConstant {
   // Use for temporary, after get from the database
   static readonly INFOMATION = {
-    ADDRESS: 'Phan Văn Trị, 20 Đ. Số 4, Phường 5, Gò Vấp, Thành phố Hồ Chí Minh, Ho Chi Minh City, Vietnam',
+    ADDRESS: 'Phan Văn Trị, 20 Đường Số 4, Phường 5, Gò Vấp, Thành phố Hồ Chí Minh, Việt Nam',
     EMAIL: 'quangminhcandlehcm@gmail.com',
     PHONE: ' 0903 955 018',
   }

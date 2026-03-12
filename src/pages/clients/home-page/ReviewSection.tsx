@@ -80,7 +80,7 @@ export default function ReviewSection() {
         <div className={`text-center mb-10 sm:mb-12 md:mb-16 lg:mb-20 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}>
           <div className="inline-flex items-center gap-4 sm:gap-6 mb-4 sm:mb-6">
             <div className="h-[1.5px] sm:h-[2px] w-24 sm:w-32 bg-gradient-to-r from-transparent via-[#9C775B]/40 to-[#9C775B]/60"></div>
-            <p className="text-[#9C775B]/75 text-[10px] sm:text-xs md:text-sm font-extralight tracking-[0.3em] sm:tracking-[0.4em] uppercase whitespace-nowrap">
+            <p className="text-[#9C775B]/75 text-[10px] sm:text-xs md:text-sm font-bold tracking-[0.3em] sm:tracking-[0.4em] uppercase whitespace-nowrap">
               KHÁCH HÀNG NÓI GÌ
             </p>
             <div className="h-[1.5px] sm:h-[2px] w-24 sm:w-32 bg-gradient-to-l from-transparent via-[#9C775B]/40 to-[#9C775B]/60"></div>
