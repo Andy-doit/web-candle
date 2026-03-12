@@ -9,7 +9,8 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { IProductBase } from "../../../types";
 import { ProductApi } from "../../../apis";
 import Breadcrumbs from "../../../components/ui/breadcrumb";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useCartStore } from "../../../store/cartStore";
 
 export default function DetailSection({ productId }: { productId?: string }) {
   const { categoryId, name } = useParams<{
@@ -21,6 +22,25 @@ export default function DetailSection({ productId }: { productId?: string }) {
   const [activeTab, setActiveTab] = useState<"description" | "shipping" | "exchange">("description");
   const [product, setProduct] = useState<IProductBase | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [quantity, setQuantity] = useState<number>(1);
+  const { addItem } = useCartStore();
+  const navigate = useNavigate();
+
+  const handleIncrease = () => setQuantity((prev) => prev + 1);
+  const handleDecrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+
+  const handleAddToCart = () => {
+    if (product) {
+      addItem(product, quantity);
+    }
+  };
+
+  const handleBuyNow = () => {
+    if (product) {
+      addItem(product, quantity);
+      navigate("/cart");
+    }
+  };
 
   // Fetch product by id (or fallback id)
   useEffect(() => {
@@ -211,17 +231,33 @@ export default function DetailSection({ productId }: { productId?: string }) {
             {/* QUANTITY + CTA */}
             <div className="flex flex-col sm:flex-row gap-4 mt-4">
               <div className="flex border rounded-lg overflow-hidden w-full sm:w-auto">
-                <button className="px-3">−</button>
-                <div className="px-4 py-2">1</div>
-                <button className="px-3">+</button>
+                <button
+                  onClick={handleDecrease}
+                  className="px-3 cursor-pointer hover:bg-gray-100 transition"
+                >
+                  −
+                </button>
+                <div className="px-4 py-2 min-w-[3rem] text-center">{quantity}</div>
+                <button
+                  onClick={handleIncrease}
+                  className="px-3 cursor-pointer hover:bg-gray-100 transition"
+                >
+                  +
+                </button>
               </div>
 
-              <button className="w-full sm:flex-1 border cursor-pointer border-dark rounded-lg font-medium hover:bg-dark hover:text-white transition">
+              <button
+                onClick={handleAddToCart}
+                className="w-full sm:flex-1 border cursor-pointer border-dark rounded-lg font-medium hover:bg-dark hover:text-white transition"
+              >
                 THÊM VÀO GIỎ
               </button>
             </div>
 
-            <button className="w-full cursor-pointer bg-[#C26A3D] text-white py-3 rounded-lg font-semibold hover:opacity-90">
+            <button
+              onClick={handleBuyNow}
+              className="w-full cursor-pointer bg-[#C26A3D] text-white py-3 rounded-lg font-semibold hover:opacity-90 transition"
+            >
               MUA NGAY
             </button>
 

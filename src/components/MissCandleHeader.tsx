@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { CategoryApi } from "../apis";
 import { ICategoryBase } from "../types";
 import { Status } from "../constants/admin";
+import { useCartStore } from "../store/cartStore";
 
 const MENU_ITEMS: { label: string, path: string }[] = [
   { label: "Trang chủ", path: "/" },
@@ -21,6 +22,8 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
   const [expandedMobileMenu, setExpandedMobileMenu] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const { getTotalItems } = useCartStore();
+  const itemCount = getTotalItems();
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -153,7 +156,7 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
           >
             <ShoppingBag className="w-6 h-6 text-dark group-hover:text-primary transition-colors" />
             <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-primary rounded-full text-[11px] font-semibold flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform duration-200">
-              0
+              {itemCount}
             </span>
           </button>
         </div>
