@@ -1,4 +1,5 @@
 import { FunctionComponent, useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Calendar, ChevronRight, ArrowLeft, BookOpen, Share2 } from "lucide-react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
@@ -16,6 +17,12 @@ import { Status } from "../../../constants/admin";
 //     tmp.innerHTML = html;
 //     return (tmp.textContent || tmp.innerText || "").trim();
 // }
+
+const resolveImage = (img: string) => {
+  if (!img) return "https://misscandle.com.vn/banner/openGraph.jpg";
+  if (img.startsWith('http')) return img;
+  return `https://misscandle.com.vn${img}`;
+};
 
 function formatDate(dateStr: string): string {
     const d = new Date(dateStr);
@@ -108,28 +115,21 @@ const BlogDetailPage: FunctionComponent = () => {
             </div>
         );
     }
-
-    // Helper to rewrite image src URLs in post.body
-    function fixImageSrc(html: string): string {
-        if (!html) return "";
-        // 1. Nếu src="images-service/..." hoặc src="/images-service/..." hoặc src="cdn/..." hoặc src="/cdn/..." => prepend domain
-        // 2. Nếu src bắt đầu bằng http/https thì giữ nguyên
-        // 3. Nếu src="localhost://..." thì thay bằng domain đúng
-        const DOMAIN = "https://shop-admin.dmhuy.xyz/";
-        return html.replace(/<img[^>]+src=("|')([^"'>]+)("|')/g, (match, _q1, src, _q2) => {
-            let newSrc = src;
-            if (/^(localhost|127\.0\.0\.1|images-service|cdn)[/:]/.test(src)) {
-                newSrc = DOMAIN + src.replace(/^\/*/, "");
-            } else if (/^\/images-service\//.test(src) || /^\/cdn\//.test(src)) {
-                newSrc = DOMAIN + src.replace(/^\//, "");
-            } else if (!/^https?:\/\//.test(src)) {
-                newSrc = DOMAIN + src.replace(/^\/*/, "");
-            }
-            return match.replace(src, newSrc);
-        });
-    }
-
+    const postUrl = post ? `https://misscandle.com.vn/blog/${post.slug}` : "https://misscandle.com.vn/blog";
     return (
+        <>
+        <Helmet>
+          <title>{post.title}</title>
+          <meta name="description" content={post.body} />
+          <meta property="og:type" content="article" />
+          <meta property="og:title" content={post.title} />
+          <meta property="og:description" content={post.body} />
+          <meta property="og:image" content={resolveImage(post.image)} />
+          <meta property="og:url" content={postUrl} />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={post.title} />
+          <meta name="twitter:image" content={resolveImage(post.image)} />
+        </Helmet>
         <div className="min-h-screen bg-[#FAF7F3]">
             {/* ── Hero Banner ── */}
             <div className="relative h-[400px] md:h-[520px] overflow-hidden">
@@ -193,7 +193,7 @@ const BlogDetailPage: FunctionComponent = () => {
                         {/* Body content — rich text HTML */}
                         <div
                             className="blog-body"
-                            dangerouslySetInnerHTML={{ __html: fixImageSrc(post.body) }}
+                            dangerouslySetInnerHTML={{ __html: post.body }}
                         />
 
                         {/* Share bar */}
@@ -281,6 +281,7 @@ const BlogDetailPage: FunctionComponent = () => {
                 )}
             </div>
         </div>
+        </>
     );
 };
 

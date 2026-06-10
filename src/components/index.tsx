@@ -5,3 +5,5 @@ export {default as MissCandleProductCard} from './MissCandleProductCard';
 export {default as MissCandleSpecialCollection} from './MissCandleSpecialCollection';
 export {default as MissCandleValueProp} from './MissCandleValueProp';
 export {default as ScrollToTop} from './ScrollToTop';
+export { CheckoutDialog } from './CheckoutDialog';
+export { Toast } from './Toast';

@@ -9,6 +9,7 @@ export class ApiConstant {
     PRODUCTS: 'products',
     BANNERS: 'banners',
     POSTS: 'posts',
+    PAGES: 'pages',
   }
 
   static readonly HTTP_STATUS_CODE = {

@@ -260,3 +260,7 @@
   font-weight: 700;
   color: #2E251F;
 }
+
+.grecaptcha-badge {
+  visibility: hidden !important;
+}

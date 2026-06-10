@@ -9,8 +9,13 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { IProductBase } from "../../../types";
 import { ProductApi } from "../../../apis";
 import Breadcrumbs from "../../../components/ui/breadcrumb";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useCartStore } from "../../../store/cartStore";
+import { Toast } from "../../../components";
+import { ShoppingCart } from "lucide-react";
+import { Helmet } from "react-helmet-async";
+import { VariantApi } from "../../../apis";
+import { IVariant } from "../../../types";
 
 export default function DetailSection({ productId }: { productId?: string }) {
   const { categoryId, name } = useParams<{
@@ -24,23 +29,53 @@ export default function DetailSection({ productId }: { productId?: string }) {
   const [loading, setLoading] = useState<boolean>(false);
   const [quantity, setQuantity] = useState<number>(1);
   const { addItem } = useCartStore();
-  const navigate = useNavigate();
+  const [variants, setVariants] = useState<IVariant[]>([]);
+  const [selectedVariant, setSelectedVariant] = useState<IVariant | null>(null);
+  const [toasts, setToasts] = useState<
+    Array<{ id: string; message: string; type?: "success" | "error" | "info" }>
+  >([]);
+
+  const addToast = (message: string, type: "success" | "error" | "info" = "success") => {
+    const id = `${Date.now()}-${Math.random()}`;
+    setToasts((prev) => {
+      const next = [...prev, { id, message, type }];
+      // Keep max 4 notifications shown at once.
+      return next.length > 4 ? next.slice(next.length - 4) : next;
+    });
+  };
+
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  };
 
   const handleIncrease = () => setQuantity((prev) => prev + 1);
   const handleDecrease = () => setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
 
   const handleAddToCart = () => {
-    if (product) {
-      addItem(product, quantity);
-    }
+  if (!product) return;
+
+  const variantImages = selectedVariant?.images ?? [];
+
+  const cartProduct = {
+    ...product,
+    images: variantImages.length > 0
+      ? variantImages
+      : product.images,
   };
 
-  const handleBuyNow = () => {
-    if (product) {
-      addItem(product, quantity);
-      navigate("/cart");
-    }
-  };
+  addItem(
+    cartProduct,
+    quantity,
+    selectedVariant
+      ? {
+          id: selectedVariant.id,
+          name: selectedVariant.name,
+        }
+      : undefined
+  );
+
+  addToast("Đã thêm sản phẩm vào giỏ hàng", "success");
+};
 
   // Fetch product by id (or fallback id)
   useEffect(() => {
@@ -69,6 +104,26 @@ export default function DetailSection({ productId }: { productId?: string }) {
     };
   }, [productId]);
 
+  useEffect(() => {
+    if (!productId) return;
+
+    const fetchVariants = async () => {
+      try {
+        const res = await VariantApi.getByProductId(productId);
+
+        setVariants(res.data || []);
+
+        if (res.data?.length) {
+          setSelectedVariant(res.data[0]);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchVariants();
+  }, [productId]);
+
   if (loading) {
     return (
       <section className="py-12 bg-light border-line">
@@ -88,14 +143,44 @@ export default function DetailSection({ productId }: { productId?: string }) {
       </section>
     );
   }
-
+  const resolveImage = (img: string) => {
+    if (!img) return "https://misscandle.com.vn/banner/openGraph.jpg";
+    if (img.startsWith('http')) return img;
+    return `https://misscandle.com.vn${img}`;
+  };
   const images =
-    product.images && product.images.length
-      ? product.images
-      : ["/product-detail.png"];
+    selectedVariant?.images?.length
+      ? selectedVariant.images
+      : product.images?.length
+        ? product.images
+        : ["/product-detail.png"];
   const categoryName = name || product.categories?.[0]?.name || "default";
   return (
-    <section className="py-8 border-line bg-light">
+    <>
+      <Helmet>
+        <title>{product.name} - MissCandle</title>
+        <meta name="description" content={product.description} />
+        <meta property="og:title" content={product.name} />
+        <meta property="og:description" content={product.description} />
+        <meta property="og:image" content={resolveImage(product.images?.[0] || '')} />
+        <meta
+          property="og:url"
+          content={`https://misscandle.com.vn/products/category/${categoryName}/${categoryId}/detail/${product.id}`}
+        />
+      </Helmet>
+
+      <div data-helmet-ready="true" style={{ display: 'none' }}></div>
+
+      {toasts.map((toast) => (
+        <Toast
+          key={toast.id}
+          open={true}
+          onClose={() => removeToast(toast.id)}
+          message={toast.message}
+          type={toast.type}
+        />
+      ))}
+      <section className="py-8 border-line bg-light">
       <div className="max-w-7xl mx-auto px-4 md:px-12">
         <Breadcrumbs
           items={[
@@ -115,6 +200,7 @@ export default function DetailSection({ productId }: { productId?: string }) {
             {/* 1. Main Slider */}
             <div className="relative rounded-xl overflow-hidden aspect-square">
               <Swiper
+                key={selectedVariant?.id || product.id}
                 spaceBetween={10}
                 navigation={true}
                 thumbs={{
@@ -141,31 +227,37 @@ export default function DetailSection({ productId }: { productId?: string }) {
             {/* 2. Thumbnail Slider */}
               <div className="h-12 sm:h-14 md:h-16">
                 <Swiper
+                  key={`thumb-${selectedVariant?.id || product.id}`}
                   onSwiper={setThumbsSwiper}
                   spaceBetween={8}
                   freeMode={true}
                   watchSlidesProgress={true}
+                  observer={true}
+                  observeParents={true}
+                  watchOverflow={true}
+                  slidesPerView="auto"
                   modules={[FreeMode, Navigation, Thumbs]}
                   className="thumbs-gallery h-full"
-                  breakpoints={{
-                    0: { slidesPerView: 3 },
-                    480: { slidesPerView: 4 },
-                    768: { slidesPerView: 4 },
-                  }}
                 >
-                {images.map((img, index) => (
-                  <SwiperSlide
-                    key={index}
-                    className="rounded-lg overflow-hidden border border-gray-200 cursor-pointer opacity-60 hover:opacity-100 transition-all h-full w-auto! aspect-square"
-                  >
-                    <img
-                      src={img}
-                      alt={`Thumb ${index}`}
-                      className="w-full h-full object-cover block"
-                    />
-                  </SwiperSlide>
-                ))}
-              </Swiper>
+                  {images.map((img, index) => (
+                    <SwiperSlide
+                      key={index}
+                      className="w-14! sm:w-16! md:w-20!
+                                aspect-square 
+                                rounded-lg overflow-hidden 
+                                border border-gray-200 
+                                cursor-pointer 
+                                opacity-60 hover:opacity-100 
+                                transition-all"
+                    >
+                      <img
+                        src={img}
+                        alt={`Thumb ${index}`}
+                        className="w-full h-full object-cover block"
+                      />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
             </div>
           </div>
 
@@ -189,12 +281,6 @@ export default function DetailSection({ productId }: { productId?: string }) {
             {/* BRAND + SKU */}
             <div className="text-sm text-dark/80 space-y-1">
               <p>
-                Thương hiệu:{" "}
-                <span className="text-primary cursor-pointer hover:underline">
-                  {name}
-                </span>
-              </p>
-              <p>
                 Mã sản phẩm:{" "}
                 <span className="text-primary font-medium">{product.sku}</span>
               </p>
@@ -205,61 +291,124 @@ export default function DetailSection({ productId }: { productId?: string }) {
               <span className="text-2xl font-bold text-[#C26A3D]">
                 {product.price.toLocaleString("vi-VN")}đ
               </span>
-              <span className="text-gray-400 line-through text-sm">
+              {/* <span className="text-gray-400 line-through text-sm">
                 250.000đ
               </span>
               <span className="bg-[#C26A3D] text-white text-xs px-2 py-1 rounded">
                 -16%
-              </span>
+              </span> */}
             </div>
 
-            {/* PROMOTION */}
+            {/* SHORT DESCRIPTION */}
+            {variants.length > 0 && (
+              <div className="mt-4">
+                <div className="flex flex-wrap gap-2">
+                  {variants.map((variant) => (
+                    <button
+                      key={variant.id}
+                      onClick={() => setSelectedVariant(variant)}
+                      className={`
+                        relative px-5 py-2 border rounded-sm cursor-pointer
+                        overflow-hidden transition-all
+                        ${
+                          selectedVariant?.id === variant.id
+                            ? "border-primary bg-primary text-white"
+                            : "border-gray-300 bg-white hover:border-primary"
+                        }
+                      `}
+                    >
+                      <span className="text-sm">{variant.name}</span>
+
+                      {selectedVariant?.id === variant.id && (
+                        <>
+                          {/* Tam giác góc phải */}
+                          <div
+                            className="
+                              absolute top-0 right-0
+                              w-0 h-0
+                              border-t-[22px]
+                              border-l-[22px]
+                              border-l-transparent
+                            "
+                          />
+
+                          {/* Dấu tick */}
+                          <span
+                            className="
+                              absolute top-[1px] right-[2px]
+                              text-black text-[10px] font-bold
+                              leading-none
+                            "
+                          >
+                            ✓
+                          </span>
+                        </>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
             <div className="border border-dashed border-[#C26A3D] rounded-xl p-4 bg-[#FFF7F2] space-y-2">
-              <p className="flex items-center gap-2 font-medium text-[#C26A3D]">
-                🎁 KHUYẾN MÃI - ƯU ĐÃI
-              </p>
-              <ul className="text-sm text-dark space-y-1 list-disc pl-5">
-                <li>
-                  Nhập mã <strong>WEB10</strong> giảm 10% đơn hàng
-                </li>
-                <li>Giảm 15% cho đơn hàng tiếp theo</li>
-                <li>Tặng khay Oval khi mua 2 ly nến</li>
-                <li>FREESHIP đơn từ 500.000đ</li>
-              </ul>
+              <div 
+                dangerouslySetInnerHTML={{ __html: product.short_description }}
+              />
             </div>
 
-            {/* QUANTITY + CTA */}
-            <div className="flex flex-col sm:flex-row gap-4 mt-4">
-              <div className="flex border rounded-lg overflow-hidden w-full sm:w-auto">
+            {/* Quantity & Add to Cart */}
+            <div className="flex flex-row gap-3 w-full">
+              
+              {/* Quantity Selector */}
+              <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden bg-white shrink-0">
+                
                 <button
                   onClick={handleDecrease}
-                  className="px-3 cursor-pointer hover:bg-gray-100 transition"
+                  className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12
+                            flex items-center justify-center 
+                            text-lg md:text-xl 
+                            hover:bg-gray-100 active:bg-gray-200 
+                            transition-colors cursor-pointer"
                 >
                   −
                 </button>
-                <div className="px-4 py-2 min-w-[3rem] text-center">{quantity}</div>
+
+                <div className="w-10 sm:w-12 md:w-14 
+                                h-10 sm:h-11 md:h-12
+                                flex items-center justify-center 
+                                text-sm md:text-base font-semibold 
+                                border-x border-gray-300">
+                  {quantity}
+                </div>
+
                 <button
                   onClick={handleIncrease}
-                  className="px-3 cursor-pointer hover:bg-gray-100 transition"
+                  className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12
+                            flex items-center justify-center 
+                            text-lg md:text-xl 
+                            hover:bg-gray-100 active:bg-gray-200 
+                            transition-colors cursor-pointer"
                 >
                   +
                 </button>
               </div>
 
+              {/* Add to Cart Button */}
               <button
                 onClick={handleAddToCart}
-                className="w-full sm:flex-1 border cursor-pointer border-dark rounded-lg font-medium hover:bg-dark hover:text-white transition"
+                className="flex-1 
+                          h-10 sm:h-11 md:h-12
+                          bg-[#C26A3D] hover:bg-[#A95C36] 
+                          text-white font-medium 
+                          text-sm cursor-pointer
+                          rounded-lg shadow-sm 
+                          flex items-center justify-center gap-2
+                          active:scale-[0.98] transition-all duration-200"
               >
-                THÊM VÀO GIỎ
+                <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="truncate">Thêm vào giỏ hàng</span>
               </button>
-            </div>
 
-            <button
-              onClick={handleBuyNow}
-              className="w-full cursor-pointer bg-[#C26A3D] text-white py-3 rounded-lg font-semibold hover:opacity-90 transition"
-            >
-              MUA NGAY
-            </button>
+            </div>
 
             {/* HOTLINE */}
             <p className="text-sm text-center text-dark/70">
@@ -287,37 +436,40 @@ export default function DetailSection({ productId }: { productId?: string }) {
         </div>
 
         <section className="py-12">
-          <div className="max-w-4xl">
+          <div className="w-full">
             <div className="flex mb-8 border-b border-gray-200">
               <button
                 onClick={() => setActiveTab('description')}
-                className={`px-6 py-3 font-medium text-base transition-colors ${
+                className={`flex-1 text-center sm:text-left px-6 py-3 font-medium text-base transition-colors ${
                   activeTab === 'description'
                     ? 'text-dark border-b-2 border-primary'
                     : 'text-gray-500 hover:text-dark'
                 }`}
               >
-                Mô tả sản phẩm
+                <span className="sm:hidden">Mô tả</span>
+                <span className="hidden sm:inline">Mô tả sản phẩm</span>
               </button>
               <button
                 onClick={() => setActiveTab('shipping')}
-                className={`px-6 py-3 font-medium text-base transition-colors ${
+                className={`flex-1 text-center sm:text-left px-6 py-3 font-medium text-base transition-colors ${
                   activeTab === 'shipping'
                     ? 'text-dark border-b-2 border-primary'
                     : 'text-gray-500 hover:text-dark'
                 }`}
               >
-                Chính sách giao hàng
+                <span className="sm:hidden">Giao hàng</span>
+                <span className="hidden sm:inline">Chính sách giao hàng</span>
               </button>
               <button
                 onClick={() => setActiveTab('exchange')}
-                className={`px-6 py-3 font-medium text-base transition-colors ${
+                className={`flex-1 text-center sm:text-left px-6 py-3 font-medium text-base transition-colors ${
                   activeTab === 'exchange'
                     ? 'text-dark border-b-2 border-primary'
                     : 'text-gray-500 hover:text-dark'
                 }`}
               >
-                Chính sách đổi trả
+                <span className="sm:hidden">Đổi trả</span>
+                <span className="hidden sm:inline">Chính sách đổi trả</span>
               </button>
             </div>
 
@@ -329,54 +481,6 @@ export default function DetailSection({ productId }: { productId?: string }) {
                     <div 
                       dangerouslySetInnerHTML={{ __html: product.description }}
                     />
-                  </div>
-
-                  <div>
-                    <h3 className="text-xl font-bold text-dark mb-4">
-                      Cấu tạo mùi hương
-                    </h3>
-                    <ul className="space-y-2 text-dark">
-                      <li className="flex items-start gap-3">
-                        <span className="text-primary font-bold mt-1">•</span>
-                        <span><strong>Tổng hương:</strong> Ngọt ngào, âm áp</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="text-primary font-bold mt-1">•</span>
-                        <span><strong>Top:</strong> Gừng</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="text-primary font-bold mt-1">•</span>
-                        <span><strong>Middle:</strong> Quế, Đinh hương</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="text-primary font-bold mt-1">•</span>
-                        <span><strong>Base:</strong> Hạnh nhân, Nhục đậu khấu</span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 className="text-xl font-bold text-dark mb-4">
-                      Về nến thơm nhà MISSCANDLE
-                    </h3>
-                    <ul className="space-y-3 text-dark text-justify leading-relaxed">
-                      <li className="flex items-start gap-3">
-                        <span className="text-primary font-bold mt-1">🎁</span>
-                        <span>Sản phẩm nến MISSCANDLE với thành phần và chứng nhận an toàn</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="text-primary font-bold mt-1">🎁</span>
-                        <span>Sáp đậu nành, sáp cọ và bác gỗ, thân thiện với môi trường</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="text-primary font-bold mt-1">🎁</span>
-                        <span>Lý nến handmade làm từ vật liệu an toàn cho da và sức khỏe</span>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <span className="text-primary font-bold mt-1">🎁</span>
-                        <span><strong>Size:</strong> 200g (50 giờ đốt) | 100g (25 giờ đốt)</span>
-                      </li>
-                    </ul>
                   </div>
                 </div>
               )}
@@ -447,5 +551,6 @@ export default function DetailSection({ productId }: { productId?: string }) {
         </section>
       </div>
     </section>
+    </>
   );
 }

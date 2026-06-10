@@ -1,4 +1,5 @@
 import { motion } from "motion/react";
+import { Helmet } from "react-helmet-async";
 import { MissCandleProductCard } from "../../../components";
 import { useEffect, useMemo, useState } from "react";
 import { IProductBase, ICategoryBase } from "../../../types";
@@ -89,7 +90,27 @@ export default function ProductsPage() {
     { value: "price-desc", label: "Giá giảm dần" },
   ];
 
+  const metaTitle = categoryName
+    ? `${decodeURIComponent(categoryName)} - MissCandle`
+    : "Sản Phẩm - MissCandle";
+  const metaUrl = categoryId
+    ? `https://misscandle.com.vn/products/category/${categoryName}/${categoryId}`
+    : "https://misscandle.com.vn/products";
+
   return (
+  <>
+    <Helmet>
+      <title>{metaTitle}</title>
+      <meta name="description" content={`Khám phá ${pageTitle} tại MissCandle - Nến thơm handmade cao cấp.`} />
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content={metaTitle} />
+      <meta property="og:description" content={`Khám phá ${pageTitle} tại MissCandle - Nến thơm handmade cao cấp.`} />
+      <meta property="og:image" content="https://misscandle.com.vn/banner/openGraph.jpg" />
+      <meta property="og:url" content={metaUrl} />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={metaTitle} />
+      <meta name="twitter:image" content="https://misscandle.com.vn/banner/openGraph.jpg" />
+    </Helmet>
     <div className="min-h-screen flex flex-col bg-light">
       {/* Banner Section */}
       <motion.div
@@ -247,5 +268,7 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
+  </>  
+
   );
 }

@@ -18,6 +18,7 @@ export interface IProductBase {
   sku: string
   name: string
   description: string
+  short_description: string
   price: number
   status: number // 1 | 0 (backend đang trả number)
   images: string[]
@@ -28,6 +29,7 @@ export interface IProductBase {
   createdAt: string // ISO date
   updatedAt: string // ISO date
   categories: ICategoryBase[]
+  variants?: IVariant[];
 }
 
 export interface IBannerBase {
@@ -39,4 +41,11 @@ export interface IBannerBase {
   background_color: string
   status: number
   position: number
+}
+
+export interface IVariant {
+  id: string;
+  product_id: string;
+  name: string;
+  images: string[];
 }

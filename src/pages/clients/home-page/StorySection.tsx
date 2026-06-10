@@ -50,7 +50,7 @@ export default function StorySection() {
         {/* Section Header */}
         <div className="text-center mb-12 md:mb-16">
           <div className="inline-flex items-center gap-4 sm:gap-6 mb-4 sm:mb-6">
-            <div className="h-[1.5px] sm:h-[2px] w-16 sm:w-24 md:w-32 bg-gradient-to-r from-transparent via-[#9C775B]/40 to-[#9C775B]/60"></div>
+            <div className="h-[1.5px] sm:h-0.5 w-16 sm:w-24 md:w-32 bg-linear-to-r from-transparent via-[#9C775B]/40 to-[#9C775B]/60"></div>
 
             <div className="flex flex-col sm:flex-row items-center sm:gap-2">
               <p className="text-[#9C775B]/75 text-[10px] sm:text-xs md:text-sm font-bold tracking-[0.3em] sm:tracking-[0.4em] uppercase">
@@ -61,7 +61,7 @@ export default function StorySection() {
               </p>
             </div>
 
-            <div className="h-[1.5px] sm:h-[2px] w-16 sm:w-24 md:w-32 bg-gradient-to-l from-transparent via-[#9C775B]/40 to-[#9C775B]/60"></div>
+            <div className="h-[1.5px] sm:h-0.5 w-16 sm:w-24 md:w-32 bg-linear-to-l from-transparent via-[#9C775B]/40 to-[#9C775B]/60"></div>
           </div>
           <h2 className="text-3xl md:text-4xl font-bold text-dark mb-2">
             Nghệ Thuật <span className="text-primary italic">Thắp Sáng</span>

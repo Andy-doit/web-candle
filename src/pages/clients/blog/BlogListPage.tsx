@@ -1,4 +1,5 @@
 import { FunctionComponent, useEffect, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Calendar, Clock, ChevronRight, ArrowRight, BookOpen } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
@@ -238,6 +239,19 @@ const BlogListPage: FunctionComponent = () => {
     }, []);
 
     return (
+        <>
+        <Helmet>
+          <title>Blog - MissCandle</title>
+          <meta name="description" content="Khám phá các bài viết về nến thơm, phong cách sống và xu hướng trang trí từ MissCandle." />
+          <meta property="og:type" content="website" />
+          <meta property="og:title" content="Blog - MissCandle" />
+          <meta property="og:description" content="Khám phá các bài viết về nến thơm, phong cách sống và xu hướng trang trí từ MissCandle." />
+          <meta property="og:image" content="https://misscandle.com.vn/banner/openGraph.jpg" />
+          <meta property="og:url" content="https://misscandle.com.vn/blog" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content="Blog - MissCandle" />
+          <meta name="twitter:image" content="https://misscandle.com.vn/banner/openGraph.jpg" />
+        </Helmet>
         <div className="min-h-screen bg-[#FAF7F3]">
             {/* ── Page Header Banner ── */}
             <section className="relative overflow-hidden py-24 px-4 h-[320px] md:h-[400px] flex items-center justify-center">
@@ -336,6 +350,7 @@ const BlogListPage: FunctionComponent = () => {
                 )}
             </div>
         </div>
+        </>
     );
 };
 

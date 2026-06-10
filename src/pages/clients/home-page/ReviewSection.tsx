@@ -45,21 +45,21 @@ export default function ReviewSection() {
       name: 'Nguyễn Thị Hương',
       title: 'Khách hàng thân thiết',
       rating: 5,
-      text: 'Nến của Lumière thực sự tuyệt vời! Hương thơm tuyệt vời, ánh sáng ấm áp, và nó tạo ra không gian yên bình trong nhà của tôi.',
+      text: 'Nến của Misscandle thực sự tuyệt vời! Hương thơm tuyệt vời, ánh sáng ấm áp, và nó tạo ra không gian yên bình trong nhà của tôi.',
     },
     {
       id: 2,
       name: 'Trần Văn Minh',
       title: 'Nhà thiết kế nội thất',
       rating: 5,
-      text: 'Tôi sử dụng sản phẩm của Lumière cho các dự án thiết kế nhà cửa của mình. Chất lượng và thiết kế đẹp mắt khiến khách hàng của tôi rất hài lòng.',
+      text: 'Tôi sử dụng sản phẩm của Misscandle cho các dự án thiết kế nhà cửa của mình. Chất lượng và thiết kế đẹp mắt khiến khách hàng của tôi rất hài lòng.',
     },
     {
       id: 3,
       name: 'Phạm Linh Anh',
       title: 'Blogger sức khỏe',
       rating: 4,
-      text: 'Các sản phẩm đều được làm từ nguyên liệu tự nhiên 100%. Tôi yêu cách Lumière cam kết với chất lượng và tính bền vững.',
+      text: 'Các sản phẩm đều được làm từ nguyên liệu tự nhiên 100%. Tôi yêu cách Misscandle cam kết với chất lượng và tính bền vững.',
     }
   ]
 

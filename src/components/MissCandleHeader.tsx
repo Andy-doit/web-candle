@@ -11,9 +11,9 @@ const MENU_ITEMS: { label: string, path: string }[] = [
   { label: "Trang chủ", path: "/" },
   { label: "Sản phẩm", path: "/products" },
   { label: "Bài viết", path: "/blog" },
-  { label: "Về chúng tôi", path: "/about-us" },
-  { label: "Chính sách sỉ", path: "/wholesales" },
-  { label: "Liên hệ", path: "/contact" },
+  { label: "Về chúng tôi", path: "/page/about-us" },
+  { label: "Chính sách", path: "/page/chinh-sach-si" },
+  { label: "Liên hệ", path: "/page/lien-he" },
 ];
 
 const MissCandleHeader: FunctionComponent<unknown> = () => {
