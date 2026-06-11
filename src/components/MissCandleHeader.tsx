@@ -6,6 +6,7 @@ import { CategoryApi } from "../apis";
 import { ICategoryBase } from "../types";
 import { Status } from "../constants/admin";
 import { useCartStore } from "../store/cartStore";
+import { ApiUtils } from "../utils";
 
 const MENU_ITEMS: { label: string, path: string }[] = [
   { label: "Trang chủ", path: "/" },
@@ -109,7 +110,7 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
                           <div className="w-14 h-14 shrink-0">
                             {cat.image_url ? (
                               <img
-                                src={cat.image_url}
+                                src={ApiUtils.getImageUrl(cat.image_url) ?? undefined}
                                 alt={cat.name}
                                 className="w-full h-full object-contain"
                               />
