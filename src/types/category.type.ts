@@ -1,10 +1,12 @@
 export interface ICategoryBase {
-  id: number
+  id: string | number
+  category_id?: string
   name: string
   description: string
   creator: string
   image_url: string
-  parent_uuid: string
+  parent_uuid: string | null
+  parent_name?: string | null
   note1: string | null
   note2: string | null
   note3: string | null

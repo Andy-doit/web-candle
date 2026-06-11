@@ -18,7 +18,8 @@ const MENU_ITEMS: { label: string, path: string }[] = [
 
 const MissCandleHeader: FunctionComponent<unknown> = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [categories, setCategories] = useState<ICategoryBase[]>([]);
+  const [parentCategories, setParentCategories] = useState<ICategoryBase[]>([]);
+  const [childCategories, setChildCategories] = useState<ICategoryBase[]>([]);
   const [expandedMobileMenu, setExpandedMobileMenu] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -28,14 +29,14 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const res = await CategoryApi.getCategoryByStatus(Status.LIST_ALL);
-        // if (res?.data) {
-        //   const rootCategories = res.data.filter(
-        //     (cat: ICategoryBase) => cat.parent_uuid === null
-        //   );
-        //   setCategories(rootCategories);
-        // }
-        setCategories(res.data);
+        const [parentRes, childRes] = await Promise.all([
+          CategoryApi.getCategoryByStatus(Status.LIST_ALL),
+          CategoryApi.getCategoriesWithParents()
+        ]);
+        const pData = Array.isArray(parentRes) ? parentRes : (parentRes?.data || []);
+        const cData = Array.isArray(childRes) ? childRes : (childRes?.data || []);
+        setParentCategories(pData);
+        setChildCategories(cData);
       } catch (e) {
         console.error(e);
       }
@@ -96,31 +97,43 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
                     "
                   >
                     <ul className="grid grid-cols-4 gap-x-8 gap-y-6 p-6">
-                      {categories.slice(1).map(cat => (
-                        <Link
-                          key={cat.id}
-                          to={`/products/category/${cat.name}/${cat.id}`}
-                          className="
-                            flex items-center gap-3
-                            text-sm text-dark
-                            hover:text-primary transition
-                          "
-                        >
-                          <div className="w-14 h-14 shrink-0">
-                            {cat.image_url ? (
-                              <img
-                                src={cat.image_url}
-                                alt={cat.name}
-                                className="w-full h-full object-contain"
-                              />
-                            ) : (
-                              <div className="w-full h-full rounded bg-gray-100" />
-                            )}
+                      {parentCategories.slice(1).filter(c => c.category_id !== 'CAT-SPECIAL-PRODUCT' && c.name !== 'Sản phẩm nổi bật').map(parentCat => (
+                        <div key={parentCat.id} className="flex flex-col gap-2">
+                          <div className="flex items-center gap-3 border-b border-gray-100 pb-2 mb-2">
+                            <div className="w-10 h-10 shrink-0">
+                               {parentCat.image_url ? (
+                                 <img
+                                   src={parentCat.image_url}
+                                   alt={parentCat.name}
+                                   className="w-full h-full object-contain rounded"
+                                 />
+                               ) : (
+                                 <div className="w-full h-full rounded bg-gray-100" />
+                               )}
+                            </div>
+                            <div className="font-semibold text-dark text-base uppercase">
+                              {parentCat.name}
+                            </div>
                           </div>
-                          <div className="text-lg tracking-wide">
-                            {cat.name}
+                          
+                          <div className="flex flex-col gap-2">
+                            {childCategories.filter(c => 
+                              String(c.parent_uuid) === String(parentCat.id) || 
+                              c.parent_name === parentCat.name
+                            ).map(childCat => (
+                              <Link
+                                key={childCat.id}
+                                to={`/products/category/${childCat.name}/${childCat.id}`}
+                                className="
+                                  text-sm text-gray-600
+                                  hover:text-primary transition
+                                "
+                              >
+                                {childCat.name}
+                              </Link>
+                            ))}
                           </div>
-                        </Link>
+                        </div>
                       ))}
                     </ul>
                   </div>
@@ -226,25 +239,37 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
                                 transition={{ duration: 0.3, ease: "easeInOut" }}
                                 className="overflow-hidden bg-[#FAFAFA]"
                               >
-                                <div className="py-2">
-                                  {categories.slice(1).map(cat => (
-                                    <Link
-                                      key={cat.id}
-                                      to={`/products/category/${cat.name}/${cat.id}`}
-                                      className="flex items-center gap-3 py-3 px-8 hover:bg-gray-100 transition-colors"
-                                      onClick={() => setIsMenuOpen(false)}
-                                    >
-                                      <div className="w-8 h-8 rounded-full bg-white border border-gray-100 p-1 flex items-center justify-center">
-                                        {cat.image_url ? (
-                                          <img src={cat.image_url} alt={cat.name} className="w-full h-full object-contain" />
-                                        ) : (
-                                          <div className="w-full h-full bg-gray-200 rounded-full" />
-                                        )}
+                                  <div className="py-2 px-4 flex flex-col gap-4">
+                                    {parentCategories.slice(1).filter(c => c.category_id !== 'CAT-SPECIAL-PRODUCT' && c.name !== 'Sản phẩm nổi bật').map(parentCat => (
+                                      <div key={parentCat.id} className="flex flex-col">
+                                        <div className="flex items-center gap-3 mb-2">
+                                          <div className="w-8 h-8 rounded-full bg-white border border-gray-100 p-1 flex items-center justify-center shrink-0">
+                                            {parentCat.image_url ? (
+                                              <img src={parentCat.image_url} alt={parentCat.name} className="w-full h-full object-contain rounded-full" />
+                                            ) : (
+                                              <div className="w-full h-full bg-gray-200 rounded-full" />
+                                            )}
+                                          </div>
+                                          <span className="text-sm font-semibold text-dark uppercase">{parentCat.name}</span>
+                                        </div>
+                                        <div className="flex flex-col gap-1 pl-11">
+                                          {childCategories.filter(c => 
+                                            String(c.parent_uuid) === String(parentCat.id) || 
+                                            c.parent_name === parentCat.name
+                                          ).map(childCat => (
+                                            <Link
+                                              key={childCat.id}
+                                              to={`/products/category/${childCat.name}/${childCat.id}`}
+                                              className="py-2 px-3 hover:bg-gray-100 transition-colors rounded-lg text-sm text-gray-600"
+                                              onClick={() => setIsMenuOpen(false)}
+                                            >
+                                              {childCat.name}
+                                            </Link>
+                                          ))}
+                                        </div>
                                       </div>
-                                      <span className="text-sm text-gray-600 font-medium">{cat.name}</span>
-                                    </Link>
-                                  ))}
-                                </div>
+                                    ))}
+                                  </div>
                               </motion.div>
                             )}
                           </AnimatePresence>

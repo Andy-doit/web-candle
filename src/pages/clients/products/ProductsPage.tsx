@@ -14,7 +14,8 @@ export default function ProductsPage() {
   const { categoryId, name: categoryName } = useParams<{ categoryId: string; name: string }>();
   const [products, setProducts] = useState<IProductBase[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<IProductBase[]>([]);
-  const [categories, setCategories] = useState<ICategoryBase[]>([]);
+  const [parentCategories, setParentCategories] = useState<ICategoryBase[]>([]);
+  const [childCategories, setChildCategories] = useState<ICategoryBase[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Sorting State
@@ -25,21 +26,20 @@ export default function ProductsPage() {
     const loadData = async () => {
       try {
         setLoading(true);
-        const [productRes, categoryRes] = await Promise.all([
+        const [productRes, parentRes, childRes] = await Promise.all([
           ProductApi.getCategoryByStatus(Status.LIST_ALL),
-          CategoryApi.getCategoryByStatus(Status.LIST_ALL)
+          CategoryApi.getCategoryByStatus(Status.LIST_ALL),
+          CategoryApi.getCategoriesWithParents()
         ]);
 
         if (productRes?.data) {
           setProducts(productRes.data);
         }
 
-        if (categoryRes?.data) {
-          // Assuming we want to show all top-level categories.
-          // const rootCats = categoryRes.data.filter(c => !c.parent_uuid);
-          // setCategories(rootCats);
-          setCategories(categoryRes.data);
-        }
+        const pData = Array.isArray(parentRes) ? parentRes : (parentRes?.data || []);
+        const cData = Array.isArray(childRes) ? childRes : (childRes?.data || []);
+        setParentCategories(pData);
+        setChildCategories(cData);
       } catch (e) {
         console.error(e);
       } finally {
@@ -153,16 +153,35 @@ export default function ProductsPage() {
               <h3 className="text-xl font-bold text-dark mb-6 border-b border-gray-200 pb-2">
                 Danh Mục
               </h3>
-              <div className="flex flex-col space-y-3">
+              <div className="flex flex-col space-y-4">
+                <NavLink
+                  to={`/products`}
+                  end
+                  className={({ isActive }) => `text-base transition-colors duration-200 hover:text-primary font-medium ${isActive ? 'text-primary font-semibold' : 'text-gray-600'}`}
+                >
+                  TẤT CẢ
+                </NavLink>
 
-                {categories.slice(1).map(cat => (
-                  <NavLink
-                    key={cat.id}
-                    to={`/products/category/${cat.name}/${cat.id}`}
-                    className={({ isActive }) => `text-base transition-colors duration-200 hover:text-primary ${isActive ? 'text-primary font-semibold' : 'text-gray-600'}`}
-                  >
-                    {cat.name}
-                  </NavLink>
+                {parentCategories.filter(c => c.name.toUpperCase() !== 'TẤT CẢ' && c.category_id !== 'ALL' && c.category_id !== 'CAT-SPECIAL-PRODUCT' && c.name !== 'Sản phẩm nổi bật').map(parentCat => (
+                  <div key={parentCat.id} className="flex flex-col">
+                    <span className="text-sm font-semibold text-dark uppercase mb-2">
+                      {parentCat.name}
+                    </span>
+                    <div className="flex flex-col pl-3 space-y-2 border-l-2 border-gray-100">
+                      {childCategories.filter(c => 
+                        String(c.parent_uuid) === String(parentCat.id) || 
+                        c.parent_name === parentCat.name
+                      ).map(childCat => (
+                        <NavLink
+                          key={childCat.id}
+                          to={`/products/category/${childCat.name}/${childCat.id}`}
+                          className={({ isActive }) => `text-sm transition-colors duration-200 hover:text-primary ${isActive ? 'text-primary font-semibold' : 'text-gray-600'}`}
+                        >
+                          {childCat.name}
+                        </NavLink>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -177,7 +196,20 @@ export default function ProductsPage() {
           {/* Mobile Categories (Horizontal Scroll) */}
           <div className="lg:hidden col-span-1 mb-6">
             <div className="flex flex-wrap gap-2 pb-4">
-              {categories.map(cat => (
+              <NavLink
+                to={`/products`}
+                end
+                className={({ isActive }) =>
+                  `px-4 py-2 rounded-full border text-sm font-medium whitespace-nowrap transition-colors
+                                ${isActive
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-primary hover:text-primary'
+                  }`
+                }
+              >
+                TẤT CẢ
+              </NavLink>
+              {childCategories.filter(c => c.name.toUpperCase() !== 'TẤT CẢ' && c.category_id !== 'ALL' && c.category_id !== 'CAT-SPECIAL-PRODUCT' && c.name !== 'Sản phẩm nổi bật').map(cat => (
                 <NavLink
                   key={cat.id}
                   to={`/products/category/${cat.name}/${cat.id}`}
