@@ -14,7 +14,8 @@ export default function ProductsPage() {
   const { categoryId, name: categoryName } = useParams<{ categoryId: string; name: string }>();
   const [products, setProducts] = useState<IProductBase[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<IProductBase[]>([]);
-  const [categories, setCategories] = useState<ICategoryBase[]>([]);
+  const [parentCategories, setParentCategories] = useState<ICategoryBase[]>([]);
+  const [childCategoriesMap, setChildCategoriesMap] = useState<Record<string, ICategoryBase[]>>({});
   const [loading, setLoading] = useState(true);
 
   // Sorting State
@@ -25,7 +26,7 @@ export default function ProductsPage() {
     const loadData = async () => {
       try {
         setLoading(true);
-        const [productRes, categoryRes] = await Promise.all([
+        const [productRes, parentRes] = await Promise.all([
           ProductApi.getCategoryByStatus(Status.LIST_ALL),
           CategoryApi.getCategoryByStatus(Status.LIST_ALL)
         ]);
@@ -34,12 +35,30 @@ export default function ProductsPage() {
           setProducts(productRes.data);
         }
 
-        if (categoryRes?.data) {
-          // Assuming we want to show all top-level categories.
-          // const rootCats = categoryRes.data.filter(c => !c.parent_uuid);
-          // setCategories(rootCats);
-          setCategories(categoryRes.data);
-        }
+        const allCats = Array.isArray(parentRes) ? parentRes : (parentRes?.data || []);
+        const parents = allCats.filter(c => 
+          c.parent_uuid === null && 
+          c.category_id !== 'CAT-SPECIAL-PRODUCT' && 
+          c.name !== 'Sản phẩm nổi bật' &&
+          c.name.toUpperCase() !== 'TẤT CẢ' && 
+          c.category_id !== 'ALL'
+        );
+
+        setParentCategories(parents);
+
+        const childrenMap: Record<string, ICategoryBase[]> = {};
+        await Promise.all(parents.map(async (p) => {
+           try {
+             const childRes = await CategoryApi.getCategoryByParentId(String(p.id));
+             const cData = Array.isArray(childRes) ? childRes : (childRes?.data || []);
+             childrenMap[p.id] = cData;
+           } catch (err) {
+             console.error('Error fetching children for parent', p.id, err);
+             childrenMap[p.id] = [];
+           }
+        }));
+        
+        setChildCategoriesMap(childrenMap);
       } catch (e) {
         console.error(e);
       } finally {
@@ -153,16 +172,34 @@ export default function ProductsPage() {
               <h3 className="text-xl font-bold text-dark mb-6 border-b border-gray-200 pb-2">
                 Danh Mục
               </h3>
-              <div className="flex flex-col space-y-3">
+              <div className="flex flex-col space-y-4">
+                <NavLink
+                  to={`/products`}
+                  end
+                  className={({ isActive }) => `text-base transition-colors duration-200 hover:text-primary font-medium ${isActive ? 'text-primary font-semibold' : 'text-gray-600'}`}
+                >
+                  TẤT CẢ
+                </NavLink>
 
-                {categories.slice(1).map(cat => (
-                  <NavLink
-                    key={cat.id}
-                    to={`/products/category/${cat.name}/${cat.id}`}
-                    className={({ isActive }) => `text-base transition-colors duration-200 hover:text-primary ${isActive ? 'text-primary font-semibold' : 'text-gray-600'}`}
-                  >
-                    {cat.name}
-                  </NavLink>
+                {parentCategories.map(parentCat => (
+                  <div key={parentCat.id} className="flex flex-col">
+                    <div className="flex items-center gap-3 mb-3 mt-1 border-b border-gray-100 pb-2">
+                      <span className="text-sm font-semibold text-dark uppercase">
+                        {parentCat.name}
+                      </span>
+                    </div>
+                    <div className="flex flex-col pl-4 space-y-2 border-l-2 border-gray-100 mb-2">
+                      {(childCategoriesMap[parentCat.id] || []).map(childCat => (
+                        <NavLink
+                          key={childCat.id}
+                          to={`/products/category/${childCat.name}/${childCat.id}`}
+                          className={({ isActive }) => `flex items-center gap-2 py-1 transition-colors duration-200 hover:text-primary group ${isActive ? 'text-primary font-semibold' : 'text-gray-600'}`}
+                        >
+                          <span className="text-sm">{childCat.name}</span>
+                        </NavLink>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -177,12 +214,25 @@ export default function ProductsPage() {
           {/* Mobile Categories (Horizontal Scroll) */}
           <div className="lg:hidden col-span-1 mb-6">
             <div className="flex flex-wrap gap-2 pb-4">
-              {categories.map(cat => (
+              <NavLink
+                to={`/products`}
+                end
+                className={({ isActive }) =>
+                  `px-4 py-2 rounded-full border text-sm font-medium whitespace-nowrap transition-colors
+                                ${isActive
+                    ? 'bg-primary text-white border-primary'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-primary hover:text-primary'
+                  }`
+                }
+              >
+                TẤT CẢ
+              </NavLink>
+              {Object.values(childCategoriesMap).flat().map(cat => (
                 <NavLink
                   key={cat.id}
                   to={`/products/category/${cat.name}/${cat.id}`}
                   className={({ isActive }) =>
-                    `px-4 py-2 rounded-full border text-sm font-medium whitespace-nowrap transition-colors
+                    `px-4 py-2 rounded-full border text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-2
                                 ${isActive
                       ? 'bg-primary text-white border-primary'
                       : 'bg-white text-gray-600 border-gray-200 hover:border-primary hover:text-primary'

@@ -11,6 +11,10 @@ export class CategoryApi {
     return this.axiosInstance.get(`${this.categoryPath}`, {params: {query}});
   }
 
+  static async getCategoriesWithParents(): Promise<AxiosResponse<ICategoryBase[]>> {
+    return this.axiosInstance.get(`${this.categoryPath}/with-parents`, { params: { _t: Date.now() } });
+  }
+
   static async getCategoryByParentId(id: string): Promise<AxiosResponse<ICategoryBase[]>> {
     return this.axiosInstance.get(`${this.categoryPath}/children/${id}`);
   }
