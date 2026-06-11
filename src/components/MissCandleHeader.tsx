@@ -278,7 +278,7 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
                                         <div className="flex items-center gap-3 mb-2">
                                           <div className="w-10 h-10 shrink-0">
                                             {parentCat.image_url ? (
-                                              <img src={ApiUtils.getImageUrl(parentCat.image_url) ?? undefined} alt={parentCat.name} className="w-full h-full object-cover rounded-xl" />
+                                              <img src={ApiUtils.getImageUrl(parentCat.image_url) ?? undefined} alt={parentCat.name} className="w-full h-full object-cover" />
                                             ) : (
                                               <div className="w-full h-full bg-gray-200 rounded-xl" />
                                             )}
