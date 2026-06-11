@@ -15,7 +15,7 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<IProductBase[]>([]);
   const [filteredProducts, setFilteredProducts] = useState<IProductBase[]>([]);
   const [parentCategories, setParentCategories] = useState<ICategoryBase[]>([]);
-  const [childCategories, setChildCategories] = useState<ICategoryBase[]>([]);
+  const [childCategoriesMap, setChildCategoriesMap] = useState<Record<string, ICategoryBase[]>>({});
   const [loading, setLoading] = useState(true);
 
   // Sorting State
@@ -26,20 +26,39 @@ export default function ProductsPage() {
     const loadData = async () => {
       try {
         setLoading(true);
-        const [productRes, parentRes, childRes] = await Promise.all([
+        const [productRes, parentRes] = await Promise.all([
           ProductApi.getCategoryByStatus(Status.LIST_ALL),
-          CategoryApi.getCategoryByStatus(Status.LIST_ALL),
-          CategoryApi.getCategoriesWithParents()
+          CategoryApi.getCategoryByStatus(Status.LIST_ALL)
         ]);
 
         if (productRes?.data) {
           setProducts(productRes.data);
         }
 
-        const pData = Array.isArray(parentRes) ? parentRes : (parentRes?.data || []);
-        const cData = Array.isArray(childRes) ? childRes : (childRes?.data || []);
-        setParentCategories(pData);
-        setChildCategories(cData);
+        const allCats = Array.isArray(parentRes) ? parentRes : (parentRes?.data || []);
+        const parents = allCats.filter(c => 
+          c.parent_uuid === null && 
+          c.category_id !== 'CAT-SPECIAL-PRODUCT' && 
+          c.name !== 'Sản phẩm nổi bật' &&
+          c.name.toUpperCase() !== 'TẤT CẢ' && 
+          c.category_id !== 'ALL'
+        );
+
+        setParentCategories(parents);
+
+        const childrenMap: Record<string, ICategoryBase[]> = {};
+        await Promise.all(parents.map(async (p) => {
+           try {
+             const childRes = await CategoryApi.getCategoryByParentId(String(p.id));
+             const cData = Array.isArray(childRes) ? childRes : (childRes?.data || []);
+             childrenMap[p.id] = cData;
+           } catch (err) {
+             console.error('Error fetching children for parent', p.id, err);
+             childrenMap[p.id] = [];
+           }
+        }));
+        
+        setChildCategoriesMap(childrenMap);
       } catch (e) {
         console.error(e);
       } finally {
@@ -162,22 +181,21 @@ export default function ProductsPage() {
                   TẤT CẢ
                 </NavLink>
 
-                {parentCategories.filter(c => c.name.toUpperCase() !== 'TẤT CẢ' && c.category_id !== 'ALL' && c.category_id !== 'CAT-SPECIAL-PRODUCT' && c.name !== 'Sản phẩm nổi bật').map(parentCat => (
+                {parentCategories.map(parentCat => (
                   <div key={parentCat.id} className="flex flex-col">
-                    <span className="text-sm font-semibold text-dark uppercase mb-2">
-                      {parentCat.name}
-                    </span>
-                    <div className="flex flex-col pl-3 space-y-2 border-l-2 border-gray-100">
-                      {childCategories.filter(c => 
-                        String(c.parent_uuid) === String(parentCat.id) || 
-                        c.parent_name === parentCat.name
-                      ).map(childCat => (
+                    <div className="flex items-center gap-3 mb-3 mt-1 border-b border-gray-100 pb-2">
+                      <span className="text-sm font-semibold text-dark uppercase">
+                        {parentCat.name}
+                      </span>
+                    </div>
+                    <div className="flex flex-col pl-4 space-y-2 border-l-2 border-gray-100 mb-2">
+                      {(childCategoriesMap[parentCat.id] || []).map(childCat => (
                         <NavLink
                           key={childCat.id}
                           to={`/products/category/${childCat.name}/${childCat.id}`}
-                          className={({ isActive }) => `text-sm transition-colors duration-200 hover:text-primary ${isActive ? 'text-primary font-semibold' : 'text-gray-600'}`}
+                          className={({ isActive }) => `flex items-center gap-2 py-1 transition-colors duration-200 hover:text-primary group ${isActive ? 'text-primary font-semibold' : 'text-gray-600'}`}
                         >
-                          {childCat.name}
+                          <span className="text-sm">{childCat.name}</span>
                         </NavLink>
                       ))}
                     </div>
@@ -209,12 +227,12 @@ export default function ProductsPage() {
               >
                 TẤT CẢ
               </NavLink>
-              {childCategories.filter(c => c.name.toUpperCase() !== 'TẤT CẢ' && c.category_id !== 'ALL' && c.category_id !== 'CAT-SPECIAL-PRODUCT' && c.name !== 'Sản phẩm nổi bật').map(cat => (
+              {Object.values(childCategoriesMap).flat().map(cat => (
                 <NavLink
                   key={cat.id}
                   to={`/products/category/${cat.name}/${cat.id}`}
                   className={({ isActive }) =>
-                    `px-4 py-2 rounded-full border text-sm font-medium whitespace-nowrap transition-colors
+                    `px-4 py-2 rounded-full border text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-2
                                 ${isActive
                       ? 'bg-primary text-white border-primary'
                       : 'bg-white text-gray-600 border-gray-200 hover:border-primary hover:text-primary'

@@ -20,7 +20,7 @@ const MENU_ITEMS: { label: string, path: string }[] = [
 const MissCandleHeader: FunctionComponent<unknown> = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [parentCategories, setParentCategories] = useState<ICategoryBase[]>([]);
-  const [childCategories, setChildCategories] = useState<ICategoryBase[]>([]);
+  const [childCategoriesMap, setChildCategoriesMap] = useState<Record<string, ICategoryBase[]>>({});
   const [expandedMobileMenu, setExpandedMobileMenu] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -30,14 +30,30 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const [parentRes, childRes] = await Promise.all([
-          CategoryApi.getCategoryByStatus(Status.LIST_ALL),
-          CategoryApi.getCategoriesWithParents()
-        ]);
-        const pData = Array.isArray(parentRes) ? parentRes : (parentRes?.data || []);
-        const cData = Array.isArray(childRes) ? childRes : (childRes?.data || []);
-        setParentCategories(pData);
-        setChildCategories(cData);
+        const parentRes = await CategoryApi.getCategoryByStatus(Status.LIST_ALL);
+        const allCats = Array.isArray(parentRes) ? parentRes : (parentRes?.data || []);
+        
+        const parents = allCats.filter(c => 
+          c.parent_uuid === null && 
+          c.category_id !== 'CAT-SPECIAL-PRODUCT' && 
+          c.name !== 'Sản phẩm nổi bật'
+        );
+
+        setParentCategories(parents);
+
+        const childrenMap: Record<string, ICategoryBase[]> = {};
+        await Promise.all(parents.map(async (p) => {
+           try {
+             const childRes = await CategoryApi.getCategoryByParentId(String(p.id));
+             const cData = Array.isArray(childRes) ? childRes : (childRes?.data || []);
+             childrenMap[p.id] = cData;
+           } catch (err) {
+             console.error('Error fetching children for parent', p.id, err);
+             childrenMap[p.id] = [];
+           }
+        }));
+        
+        setChildCategoriesMap(childrenMap);
       } catch (e) {
         console.error(e);
       }
@@ -90,47 +106,63 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
                   {/* Dropdown Categories */}
                   <div
                     className="
-                      absolute left-0 top-full mt-2 min-w-full
-                      bg-white shadow-lg
+                      absolute left-1/2 -translate-x-1/2 top-full mt-2 w-[1000px] max-w-[95vw]
+                      bg-white shadow-xl  border border-gray-100
                       opacity-0 invisible
                       group-hover:opacity-100 group-hover:visible
                       transition-all duration-200 z-50
+                      p-2
                     "
                   >
-                    <ul className="grid grid-cols-4 gap-x-8 gap-y-6 p-6">
-                      {parentCategories.slice(1).filter(c => c.category_id !== 'CAT-SPECIAL-PRODUCT' && c.name !== 'Sản phẩm nổi bật').map(parentCat => (
+                    <ul className="grid grid-cols-4 gap-x-8 gap-y-8 p-6">
+                      {parentCategories.map(parentCat => (
                         <div key={parentCat.id} className="flex flex-col gap-2">
                           <div className="flex items-center gap-3 border-b border-gray-100 pb-2 mb-2">
-                            <div className="w-10 h-10 shrink-0">
+                            <div className="w-12 h-12 shrink-0">
                                {parentCat.image_url ? (
                                  <img
-                                   src={parentCat.image_url}
+                                   src={ApiUtils.getImageUrl(parentCat.image_url) ?? undefined}
                                    alt={parentCat.name}
-                                   className="w-full h-full object-contain rounded"
+                                   className="w-full h-full object-cover "
                                  />
                                ) : (
-                                 <div className="w-full h-full rounded bg-gray-100" />
+                                 <div className="w-full h-full  bg-gray-100" />
                                )}
                             </div>
                             <div className="font-semibold text-dark text-base uppercase">
-                              {parentCat.name}
+                              {parentCat.category_id === 'ALL' || parentCat.name.toUpperCase() === 'TẤT CẢ' ? (
+                                <Link to="/products" className="hover:text-primary transition">{parentCat.name}</Link>
+                              ) : (
+                                parentCat.name
+                              )}
                             </div>
                           </div>
                           
-                          <div className="flex flex-col gap-2">
-                            {childCategories.filter(c => 
-                              String(c.parent_uuid) === String(parentCat.id) || 
-                              c.parent_name === parentCat.name
-                            ).map(childCat => (
+                          <div className="flex flex-col gap-3 mt-1">
+                            {(childCategoriesMap[parentCat.id] || []).map(childCat => (
                               <Link
                                 key={childCat.id}
                                 to={`/products/category/${childCat.name}/${childCat.id}`}
                                 className="
+                                  flex items-center gap-2
                                   text-sm text-gray-600
                                   hover:text-primary transition
                                 "
                               >
-                                {childCat.name}
+                                <div className="w-8 h-8 shrink-0">
+                                  {childCat.image_url ? (
+                                    <img
+                                      src={ApiUtils.getImageUrl(childCat.image_url) ?? undefined}
+                                      alt={childCat.name}
+                                      className="w-full h-full object-cover  shadow-sm"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full bg-gray-100" />
+                                  )}
+                                </div>
+                                <span className="tracking-wide">
+                                  {childCat.name}
+                                </span>
                               </Link>
                             ))}
                           </div>
@@ -164,7 +196,7 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
         {/* Icons (Cart) - Right on both */}
         <div className="flex items-center gap-3 order-3">
           <button
-            className="group relative p-2 rounded-lg hover:bg-gray-100 transition-all duration-300 cursor-pointer"
+            className="group relative p-2  hover:bg-gray-100 transition-all duration-300 cursor-pointer"
             onClick={() => navigate('/cart')}
             title="Giỏ hàng"
           >
@@ -241,30 +273,40 @@ const MissCandleHeader: FunctionComponent<unknown> = () => {
                                 className="overflow-hidden bg-[#FAFAFA]"
                               >
                                   <div className="py-2 px-4 flex flex-col gap-4">
-                                    {parentCategories.slice(1).filter(c => c.category_id !== 'CAT-SPECIAL-PRODUCT' && c.name !== 'Sản phẩm nổi bật').map(parentCat => (
+                                    {parentCategories.map(parentCat => (
                                       <div key={parentCat.id} className="flex flex-col">
                                         <div className="flex items-center gap-3 mb-2">
-                                          <div className="w-8 h-8 rounded-full bg-white border border-gray-100 p-1 flex items-center justify-center shrink-0">
+                                          <div className="w-10 h-10 shrink-0">
                                             {parentCat.image_url ? (
-                                              <img src={parentCat.image_url} alt={parentCat.name} className="w-full h-full object-contain rounded-full" />
+                                              <img src={ApiUtils.getImageUrl(parentCat.image_url) ?? undefined} alt={parentCat.name} className="w-full h-full object-cover rounded-xl" />
                                             ) : (
-                                              <div className="w-full h-full bg-gray-200 rounded-full" />
+                                              <div className="w-full h-full bg-gray-200 rounded-xl" />
                                             )}
                                           </div>
-                                          <span className="text-sm font-semibold text-dark uppercase">{parentCat.name}</span>
+                                          <span className="text-sm font-semibold text-dark uppercase">
+                                            {parentCat.category_id === 'ALL' || parentCat.name.toUpperCase() === 'TẤT CẢ' ? (
+                                              <Link to="/products" onClick={() => setIsMenuOpen(false)} className="hover:text-primary">{parentCat.name}</Link>
+                                            ) : (
+                                              parentCat.name
+                                            )}
+                                          </span>
                                         </div>
-                                        <div className="flex flex-col gap-1 pl-11">
-                                          {childCategories.filter(c => 
-                                            String(c.parent_uuid) === String(parentCat.id) || 
-                                            c.parent_name === parentCat.name
-                                          ).map(childCat => (
+                                        <div className="flex flex-col gap-2 pl-12">
+                                          {(childCategoriesMap[parentCat.id] || []).map(childCat => (
                                             <Link
                                               key={childCat.id}
                                               to={`/products/category/${childCat.name}/${childCat.id}`}
-                                              className="py-2 px-3 hover:bg-gray-100 transition-colors rounded-lg text-sm text-gray-600"
+                                              className="flex items-center gap-3 py-1.5 px-2 hover:bg-gray-100 transition-colors  group"
                                               onClick={() => setIsMenuOpen(false)}
                                             >
-                                              {childCat.name}
+                                              <div className="w-7 h-7 shrink-0">
+                                                {childCat.image_url ? (
+                                                  <img src={ApiUtils.getImageUrl(childCat.image_url) ?? undefined } alt={childCat.name} className="w-full h-full object-cover  shadow-sm group-hover:scale-105 transition-transform" />
+                                                ) : (
+                                                  <div className="w-full h-full bg-gray-100" />
+                                                )}
+                                              </div>
+                                              <span className="text-sm text-gray-600 font-medium">{childCat.name}</span>
                                             </Link>
                                           ))}
                                         </div>
